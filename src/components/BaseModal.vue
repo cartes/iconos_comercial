@@ -28,11 +28,27 @@
 </template>
 
 <script setup>
-defineProps({
+import { onMounted, onUnmounted } from 'vue';
+
+const props = defineProps({
     show: Boolean,
     title: String,
 });
-defineEmits(['close']);
+const emit = defineEmits(['close']);
+
+const handleKeydown = (e) => {
+    if (e.key === 'Escape' && props.show) {
+        emit('close');
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <style scoped>
