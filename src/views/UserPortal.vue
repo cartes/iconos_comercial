@@ -7,6 +7,12 @@
             <aside class="sidebar">
                 <div class="sidebar-header">
                     <h2>Carpetas</h2>
+                    <button v-if="auth.user.puedeEliminar" @click="showAddFolder = true" class="icon-btn"
+                        title="Nueva Carpeta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </button>
                 </div>
 
                 <nav class="folder-list">
@@ -53,7 +59,6 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-
                                 </svg>
                             </button>
                             <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click="handleDeleteFolder(folder)"
@@ -79,6 +84,12 @@
                     <div v-if="selectedFolderName" class="folder-breadcrumb">
                         <span class="separator">/</span>
                         <span class="folder-tag">{{ selectedFolderName }}</span>
+                    </div>
+
+                    <div class="actions" v-if="auth.user.puedeEliminar">
+                        <BaseButton variant="primary" @click="showUpload = true">
+                            Agregar Icono
+                        </BaseButton>
                     </div>
                 </header>
 
@@ -152,6 +163,38 @@
             </main>
         </div>
 
+        <!-- Modals -->
+        <BaseModal :show="showAddFolder" title="Nueva Carpeta" @close="showAddFolder = false">
+            <form @submit.prevent="saveFolder" class="modal-form">
+                <BaseInput label="Nombre de la Carpeta" v-model="folderForm.nombre" placeholder="Ej. Social Media"
+                    required />
+                <div class="modal-actions">
+                    <BaseButton type="submit" :loading="saving">Crear Carpeta</BaseButton>
+                </div>
+            </form>
+        </BaseModal>
+
+        <BaseModal :show="showUpload" title="Agregar Icono" @close="showUpload = false">
+            <form @submit.prevent="saveIcon" class="modal-form">
+                <div class="form-group">
+                    <label class="label">Carpeta</label>
+                    <select v-model="iconForm.carpetaId" class="select-input" required>
+                        <option value="" disabled>Selecciona una carpeta</option>
+                        <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.nombre }}</option>
+                    </select>
+                </div>
+
+                <BaseInput label="URL de la Imagen" v-model="iconForm.url" placeholder="https://ejemplo.com/icono.png"
+                    required />
+
+                <BaseInput label="Etiqueta" v-model="iconForm.nombre" placeholder="Ej. Instagram Logo" />
+
+                <div class="modal-actions">
+                    <BaseButton type="submit" :loading="saving">Agregar Icono</BaseButton>
+                </div>
+            </form>
+        </BaseModal>
+
         <!-- Rename Icon Modal -->
         <BaseModal :show="showRenameModal" title="Editar Etiqueta" @close="showRenameModal = false">
             <form @submit.prevent="handleRename" class="modal-form">
@@ -199,6 +242,12 @@ const selectedFolderId = ref(null);
 const loading = ref(false);
 const saving = ref(false);
 const toast = ref(null);
+
+const showAddFolder = ref(false);
+const showUpload = ref(false);
+
+const folderForm = reactive({ nombre: '' });
+const iconForm = reactive({ nombre: '', carpetaId: '', url: '' });
 
 const showRenameModal = ref(false);
 const renameForm = reactive({ id: null, nombre: '' });
@@ -274,6 +323,42 @@ const moveTooltip = (e) => {
 
 const hideTooltip = () => {
     tooltip.show = false;
+};
+
+const saveFolder = async () => {
+    saving.value = true;
+    const res = await apiRequest('carpetas', {
+        method: 'POST',
+        data: { nombre: folderForm.nombre }
+    });
+    if (res.success) {
+        showAddFolder.value = false;
+        folderForm.nombre = '';
+        fetchData();
+        toast.value = 'Carpeta creada';
+        setTimeout(() => { toast.value = null; }, 2000);
+    } else alert(res.error);
+    saving.value = false;
+};
+
+const saveIcon = async () => {
+    saving.value = true;
+    const res = await apiRequest('iconos', {
+        method: 'POST',
+        data: {
+            nombre: iconForm.nombre,
+            carpetaId: iconForm.carpetaId,
+            url: iconForm.url
+        }
+    });
+    if (res.success) {
+        showUpload.value = false;
+        Object.assign(iconForm, { nombre: '', carpetaId: '', url: '' });
+        fetchData();
+        toast.value = 'Icono agregado';
+        setTimeout(() => { toast.value = null; }, 2000);
+    } else alert(res.error);
+    saving.value = false;
 };
 
 const openRenameFolderModal = (folder) => {
@@ -477,6 +562,26 @@ const onDragEnd = () => {
     color: var(--color-text-muted);
 }
 
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--primary-500);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: flex;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background: var(--slate-100);
+}
+
+.icon-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
 .folder-list {
     flex: 1;
     overflow-y: auto;
@@ -582,6 +687,10 @@ const onDragEnd = () => {
     .company-info h1 {
         color: white;
     }
+}
+
+.actions {
+    margin-left: auto;
 }
 
 .folder-breadcrumb {
