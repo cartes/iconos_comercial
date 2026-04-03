@@ -47,13 +47,23 @@ router.beforeEach((to, _from) => {
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return "/login";
   } else if (to.path === "/login" && auth.isAuthenticated) {
-    if (auth.user.rol === "admin") {
+    if (auth.user.rol === "super-admin") {
+      return "/admin/empresas";
+    } else if (auth.user.rol === "admin") {
       return "/admin";
     } else {
       return "/portal";
     }
-  } else if (to.meta.role && auth.user?.rol !== to.meta.role) {
-    return auth.user?.rol === "admin" ? "/admin" : "/portal";
+  } else if (to.meta.role) {
+    const isAllowed = 
+      auth.user?.rol === to.meta.role || 
+      (to.meta.role === "admin" && auth.user?.rol === "super-admin");
+
+    if (!isAllowed) {
+      if (auth.user?.rol === "super-admin") return "/admin/empresas";
+      if (auth.user?.rol === "admin") return "/admin";
+      return "/portal";
+    }
   }
 
   return true;
