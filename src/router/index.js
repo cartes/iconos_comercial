@@ -33,6 +33,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "admin" },
     },
     {
+      path: "/perfil",
+      name: "perfil",
+      component: () => import("../views/MiPerfil.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/portal",
       name: "portal",
       component: () => import("../views/UserPortal.vue"),

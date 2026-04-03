@@ -74,6 +74,12 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
+    actualizarPerfil(usuario) {
+      const updated = { ...this.user, ...usuario };
+      this.user = updated;
+      localStorage.setItem("user", JSON.stringify(updated));
+    },
+
     async checkBootstrap() {
       const res = await apiRequest("estado");
       return res;
