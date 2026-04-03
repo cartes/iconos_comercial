@@ -45,11 +45,11 @@
           <h2>Registrar Nueva Agencia</h2>
         </div>
         <div class="form-card">
-          <form @submit.prevent="registrarEmpresa" class="register-form">
+          <form @submit.prevent="registrarTenant" class="register-form">
             <div class="form-group">
               <label class="label">Nombre Comercial</label>
               <input
-                v-model="nuevaEmpresa.nombre"
+                v-model="nuevoTenant.nombre"
                 type="text"
                 class="form-input"
                 placeholder="Ej: Agencia Creativa"
@@ -58,18 +58,15 @@
               >
             </div>
             <div class="form-group">
-              <label class="label">Subdominio</label>
-              <div class="input-with-suffix">
-                <input
-                  v-model="nuevaEmpresa.subdominio"
-                  type="text"
-                  class="form-input"
-                  placeholder="ejemplo"
-                  required
-                  :disabled="cargando"
-                >
-                <span class="input-suffix">.iconos.com</span>
-              </div>
+              <label class="label">Dominio</label>
+              <input
+                v-model="nuevoTenant.dominio"
+                type="text"
+                class="form-input"
+                placeholder="agencia.com"
+                required
+                :disabled="cargando"
+              >
             </div>
             <div class="form-group form-group-action">
               <button type="submit" class="btn btn-success" :disabled="cargando">
@@ -83,10 +80,10 @@
           </form>
         </div>
 
-        <!-- Listado de empresas -->
+        <!-- Listado de tenants -->
         <div class="section-header" style="margin-top: 30px;">
-          <h2>Empresas Cliente</h2>
-          <button @click="fetchEmpresas" class="btn btn-outline" :disabled="cargando">
+          <h2>Agencias Registradas</h2>
+          <button @click="fetchTenants" class="btn btn-outline" :disabled="cargando">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
               <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
               <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
@@ -97,47 +94,62 @@
 
         <div v-if="cargando" class="loading-container">
           <span class="spinner-large"></span>
-          <p>Cargando empresas...</p>
+          <p>Cargando agencias...</p>
         </div>
 
         <div v-else class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Nombre Comercial</th>
-                <th>ID / Subdominio</th>
+                <th>Nombre</th>
+                <th>ID / Slug</th>
+                <th>Dominio</th>
                 <th>Estado</th>
                 <th style="text-align: right;">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="empresas.length === 0">
-                <td colspan="4" class="empty-row">No hay empresas registradas.</td>
+              <tr v-if="tenants.length === 0">
+                <td colspan="5" class="empty-row">No hay agencias registradas.</td>
               </tr>
-              <tr v-for="empresa in empresas" :key="empresa.id">
+              <tr v-for="tenant in tenants" :key="tenant.id">
                 <td>
                   <div class="entity-name">
-                    <span class="avatar">{{ empresa.nombre?.charAt(0) || '?' }}</span>
-                    {{ empresa.nombre }}
+                    <span class="avatar">{{ (tenant.nombre || tenant.id)?.charAt(0)?.toUpperCase() || '?' }}</span>
+                    {{ tenant.nombre || '(sin nombre)' }}
                   </div>
                 </td>
-                <td class="id-cell">{{ empresa.subdominio || empresa.id }}</td>
+                <td class="id-cell">{{ tenant.id }}</td>
+                <td class="id-cell">{{ tenant.dominio || '—' }}</td>
                 <td>
-                  <span :class="['badge', empresa.estado === 'suspendido' ? 'badge-suspendido' : 'badge-activo']">
-                    {{ empresa.estado || 'activo' }}
+                  <span :class="['badge', tenant.estado === 'suspendido' ? 'badge-suspendido' : 'badge-activo']">
+                    {{ tenant.estado || 'activo' }}
                   </span>
                 </td>
                 <td style="text-align: right;">
                   <button
-                    @click="suspenderEmpresa(empresa.id)"
+                    v-if="tenant.estado !== 'suspendido'"
+                    @click="suspenderTenant(tenant.id)"
                     class="btn btn-delete btn-sm"
-                    :disabled="cargando || empresa.estado === 'suspendido'"
+                    :disabled="cargando"
                     title="Suspender agencia"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                       <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                     </svg>
                     Suspender
+                  </button>
+                  <button
+                    v-else
+                    @click="activarTenant(tenant.id)"
+                    class="btn btn-activar btn-sm"
+                    :disabled="cargando"
+                    title="Reactivar agencia"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Activar
                   </button>
                 </td>
               </tr>
@@ -199,9 +211,9 @@ import { useAuthStore } from '@/stores/auth';
 const router = useRouter();
 const authStore = useAuthStore();
 
-const empresas = ref([]);
+const tenants = ref([]);
 const cargando = ref(false);
-const nuevaEmpresa = reactive({ nombre: '', subdominio: '' });
+const nuevoTenant = reactive({ nombre: '', dominio: '' });
 const isDark = ref(false);
 const showCambiarClave = ref(false);
 const guardando = ref(false);
@@ -258,35 +270,36 @@ const logout = () => {
   router.push('/login');
 };
 
-const fetchEmpresas = async () => {
+const fetchTenants = async () => {
   cargando.value = true;
   try {
-    const res = await apiRequest('super-admin/empresas', { method: 'GET' });
-    if (res.success !== false) {
-      empresas.value = res.data || res.empresas || (Array.isArray(res) ? res : []);
+    const res = await apiRequest('super-admin/tenants', { method: 'GET' });
+    if (Array.isArray(res)) {
+      tenants.value = res;
+    } else if (res.success !== false) {
+      tenants.value = res.data || res.tenants || [];
     } else {
       alert(`Error: ${res.error || 'No se pudo obtener el listado'}`);
     }
   } catch (err) {
     console.error(err);
-    alert('Error crítico de red al obtener empresas');
+    alert('Error crítico de red al obtener agencias');
   } finally {
     cargando.value = false;
   }
 };
 
-const registrarEmpresa = async () => {
+const registrarTenant = async () => {
   cargando.value = true;
   try {
-    const res = await apiRequest('super-admin/empresas', {
+    const res = await apiRequest('super-admin/tenants', {
       method: 'POST',
-      data: { ...nuevaEmpresa }
+      data: { nombre: nuevoTenant.nombre, dominio: nuevoTenant.dominio }
     });
-    if (res.success !== false) {
-      alert('Agencia registrada exitosamente');
-      nuevaEmpresa.nombre = '';
-      nuevaEmpresa.subdominio = '';
-      await fetchEmpresas();
+    if (res.success) {
+      nuevoTenant.nombre = '';
+      nuevoTenant.dominio = '';
+      await fetchTenants();
     } else {
       alert(`Error al registrar: ${res.error || 'Datos inválidos'}`);
     }
@@ -298,14 +311,13 @@ const registrarEmpresa = async () => {
   }
 };
 
-const suspenderEmpresa = async (id) => {
+const suspenderTenant = async (id) => {
   if (!confirm('¿Está seguro de que desea suspender esta agencia?')) return;
   cargando.value = true;
   try {
-    const res = await apiRequest(`super-admin/empresas/${id}/suspender`, { method: 'POST' });
-    if (res.success !== false) {
-      alert('Agencia suspendida correctamente');
-      await fetchEmpresas();
+    const res = await apiRequest(`super-admin/tenants/${id}/suspender`, { method: 'POST' });
+    if (res.success) {
+      await fetchTenants();
     } else {
       alert(`Error: ${res.error || 'No se pudo suspender la agencia'}`);
     }
@@ -317,11 +329,28 @@ const suspenderEmpresa = async (id) => {
   }
 };
 
+const activarTenant = async (id) => {
+  if (!confirm('¿Reactivar esta agencia?')) return;
+  cargando.value = true;
+  try {
+    const res = await apiRequest(`super-admin/tenants/${id}/activar`, { method: 'POST' });
+    if (res.success) {
+      await fetchTenants();
+    } else {
+      alert(`Error: ${res.error || 'No se pudo activar la agencia'}`);
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    cargando.value = false;
+  }
+};
+
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme');
   isDark.value = savedTheme === 'dark';
   if (isDark.value) document.documentElement.classList.add('dark');
-  fetchEmpresas();
+  fetchTenants();
 });
 </script>
 
@@ -620,6 +649,19 @@ onMounted(() => {
 :global(.dark) .btn-outline:hover:not(:disabled) {
   background: #a78bfa;
   color: #1e1e2d;
+}
+
+.btn-activar {
+  background-color: transparent;
+  color: #28a745;
+  border: 1px solid #28a745;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.btn-activar:hover:not(:disabled) {
+  background-color: #28a745;
+  color: white;
 }
 
 .btn-delete {
