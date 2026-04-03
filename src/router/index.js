@@ -21,6 +21,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "admin" },
     },
     {
+      path: "/admin/empresas",
+      name: "admin-empresas",
+      component: () => import("../views/SuperAdminEmpresas.vue"),
+      meta: { requiresAuth: true, role: "admin" },
+    },
+    {
       path: "/admin/explore/:id/:nombre",
       name: "admin-explore",
       component: () => import("../views/AdminExplorer.vue"),
@@ -35,7 +41,7 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from) => {
+router.beforeEach((to, _from) => {
   const auth = useAuthStore();
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
