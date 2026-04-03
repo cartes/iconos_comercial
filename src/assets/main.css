@@ -10,11 +10,6 @@
   --color-error-500: #ef4444;
   --color-warning-500: #f59e0b;
   --color-info-500: #3b82f6;
-
-  /* Premium Gradients */
-  --bg-image-grad-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  --bg-image-grad-premium: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  --bg-image-grad-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 /* Enable class-based dark mode in Tailwind v4 */
@@ -36,5 +31,18 @@
 
   html.dark {
     @apply bg-slate-950;
+  }
+}
+
+/* Custom gradient utilities — Tailwind v4 does NOT auto-generate from --bg-image-* */
+@layer utilities {
+  .bg-grad-primary {
+    background-image: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  }
+  .bg-grad-premium {
+    background-image: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  }
+  .bg-grad-dark {
+    background-image: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   }
 }
