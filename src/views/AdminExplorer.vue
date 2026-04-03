@@ -20,6 +20,7 @@
                         :class="[!selectedFolderId ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
                         @click="selectedFolderId = null"
                     >
+                        <div v-if="auth.user.puedeEliminar" class="w-4 shrink-0"></div>
                         <svg class="w-5 h-5 shrink-0 transition-colors" :class="[!selectedFolderId ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                         </svg>
@@ -334,8 +335,7 @@ const onFolderDragStart = (event, index) => {
 const onFolderDragEnter = (event, index) => {
     dragOverFolderIndex.value = index;
 };
-const onFolderDragOver = (_event, _index) => {
-};
+const onFolderDragOver = () => { };
 const onFolderDrop = async (event, dropIndex) => {
     if (dragFolderIndex.value !== null && dragFolderIndex.value !== dropIndex) {
         const movedItem = folders.value.splice(dragFolderIndex.value, 1)[0];
@@ -375,8 +375,7 @@ const onIconDragStart = (event, index) => {
 const onIconDragEnter = (event, index) => {
     dragOverIconIndex.value = index;
 };
-const onIconDragOver = (_event, _index) => {
-};
+const onIconDragOver = () => { };
 const onIconDrop = async (event, dropIndex) => {
     if (dragIconIndex.value !== null && dragIconIndex.value !== dropIndex) {
         const currentFilteredIcons = [...filteredIcons.value];
@@ -404,6 +403,7 @@ const onIconDrop = async (event, dropIndex) => {
                 data: { iconos: payload }
             });
             if (res.success) {
+                // Done
             } else {
                 throw new Error(res.error);
             }

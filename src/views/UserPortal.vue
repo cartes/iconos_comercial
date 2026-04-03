@@ -20,10 +20,11 @@
                         :class="[!selectedFolderId ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
                         @click="selectedFolderId = null"
                     >
+                        <div v-if="auth.user.puedeEliminar" class="w-4 shrink-0"></div>
                         <svg class="w-5 h-5 shrink-0 transition-colors" :class="[!selectedFolderId ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                         </svg>
-                        <span class="flex-1 text-left">Todas las carpetas</span>
+                        <span class="flex-1 text-left line-clamp-2">Todas las carpetas</span>
                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors" :class="[!selectedFolderId ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
                             {{ icons.length }}
                         </span>
@@ -461,7 +462,7 @@ const onFolderDragStart = (event, index) => {
 const onFolderDragEnter = (event, index) => {
     dragOverFolderIndex.value = index;
 };
-const onFolderDragOver = (_event, _index) => { };
+const onFolderDragOver = () => { };
 const onFolderDrop = async (event, dropIndex) => {
     if (dragFolderIndex.value !== null && dragFolderIndex.value !== dropIndex) {
         const movedItem = folders.value.splice(dragFolderIndex.value, 1)[0];
@@ -497,7 +498,7 @@ const onIconDragStart = (event, index) => {
 const onIconDragEnter = (event, index) => {
     dragOverIconIndex.value = index;
 };
-const onIconDragOver = (_event, _index) => { };
+const onIconDragOver = () => { };
 const onIconDrop = async (event, dropIndex) => {
     if (dragIconIndex.value !== null && dragIconIndex.value !== dropIndex) {
 
@@ -522,7 +523,9 @@ const onIconDrop = async (event, dropIndex) => {
 
         try {
             const res = await apiRequest('iconos/reorder', { method: 'PUT', data: { iconos: payload } });
-            if (!res.success) throw new Error(res.error);
+            if (res.success) {
+                // Sucess
+            } else throw new Error(res.error);
         } catch (error) {
             console.error('Error reordenando iconos', error);
             fetchData();
