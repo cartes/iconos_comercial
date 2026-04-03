@@ -127,30 +127,51 @@
                   </span>
                 </td>
                 <td style="text-align: right;">
-                  <button
-                    v-if="tenant.estado !== 'suspendido'"
-                    @click="suspenderTenant(tenant.id)"
-                    class="btn btn-delete btn-sm"
-                    :disabled="cargando"
-                    title="Suspender agencia"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                    </svg>
-                    Suspender
-                  </button>
-                  <button
-                    v-else
-                    @click="activarTenant(tenant.id)"
-                    class="btn btn-activar btn-sm"
-                    :disabled="cargando"
-                    title="Reactivar agencia"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Activar
-                  </button>
+                  <div class="actions-group">
+                    <button
+                      @click="editarTenant(tenant)"
+                      class="btn btn-outline btn-sm"
+                      :disabled="cargando"
+                      title="Editar nombre"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </button>
+                    <button
+                      v-if="tenant.estado !== 'suspendido'"
+                      @click="suspenderTenant(tenant.id)"
+                      class="btn btn-delete btn-sm"
+                      :disabled="cargando"
+                      title="Suspender agencia"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                      </svg>
+                    </button>
+                    <button
+                      v-else
+                      @click="activarTenant(tenant.id)"
+                      class="btn btn-activar btn-sm"
+                      :disabled="cargando"
+                      title="Reactivar agencia"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="borrarTenant(tenant.id)"
+                      class="btn btn-delete btn-sm"
+                      :disabled="cargando"
+                      title="Eliminar agencia"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -176,22 +197,55 @@
           <form @submit.prevent="cambiarClave" class="modal-form">
             <div class="form-group">
               <label class="label">Contraseña actual</label>
-              <input v-model="claveForm.actual" type="password" class="form-input" placeholder="••••••••" required :disabled="guardando">
+              <input v-model="claveForm.actual" type="password" class="form-input" placeholder="••••••••" required :disabled="cargando">
             </div>
             <div class="form-group">
               <label class="label">Nueva contraseña</label>
-              <input v-model="claveForm.nueva" type="password" class="form-input" placeholder="Mínimo 8 caracteres" required minlength="8" :disabled="guardando">
+              <input v-model="claveForm.nueva" type="password" class="form-input" placeholder="Mínimo 8 caracteres" required minlength="8" :disabled="cargando">
             </div>
             <div class="form-group">
               <label class="label">Confirmar nueva contraseña</label>
-              <input v-model="claveForm.confirmar" type="password" class="form-input" placeholder="Repite la nueva contraseña" required :disabled="guardando">
+              <input v-model="claveForm.confirmar" type="password" class="form-input" placeholder="Repite la nueva contraseña" required :disabled="cargando">
             </div>
             <p v-if="claveError" class="clave-error">{{ claveError }}</p>
             <p v-if="claveExito" class="clave-exito">{{ claveExito }}</p>
             <div class="modal-actions">
-              <button type="button" class="btn btn-outline" @click="cerrarCambiarClave" :disabled="guardando">Cancelar</button>
-              <button type="submit" class="btn btn-success" :disabled="guardando">
-                <span v-if="guardando" class="spinner-small"></span>
+              <button type="button" class="btn btn-outline" @click="cerrarCambiarClave" :disabled="cargando">Cancelar</button>
+              <button type="submit" class="btn btn-success" :disabled="cargando">
+                <span v-if="cargando" class="spinner-small"></span>
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal Editar Tenant -->
+    <Transition name="modal">
+      <div v-if="showEditarTenant" class="modal-overlay" @click.self="cerrarEditarTenant">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Editar Agencia
+            </h3>
+            <button class="modal-close" @click="cerrarEditarTenant">✕</button>
+          </div>
+          <form @submit.prevent="guardarEdicionTenant" class="modal-form">
+            <div class="form-group">
+              <label class="label">Nombre Comercial</label>
+              <input v-model="editForm.nombre" type="text" class="form-input" placeholder="Nombre de la agencia" required :disabled="cargando">
+            </div>
+            <p v-if="editError" class="clave-error">{{ editError }}</p>
+            <p v-if="editExito" class="clave-exito">{{ editExito }}</p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline" @click="cerrarEditarTenant" :disabled="cargando">Cancelar</button>
+              <button type="submit" class="btn btn-success" :disabled="cargando">
+                <span v-if="cargando" class="spinner-small"></span>
                 Guardar cambios
               </button>
             </div>
@@ -216,10 +270,14 @@ const cargando = ref(false);
 const nuevoTenant = reactive({ nombre: '', dominio: '' });
 const isDark = ref(false);
 const showCambiarClave = ref(false);
-const guardando = ref(false);
 const claveError = ref('');
 const claveExito = ref('');
 const claveForm = reactive({ actual: '', nueva: '', confirmar: '' });
+
+const showEditarTenant = ref(false);
+const editError = ref('');
+const editExito = ref('');
+const editForm = reactive({ id: '', nombre: '' });
 
 const cerrarCambiarClave = () => {
   showCambiarClave.value = false;
@@ -235,7 +293,7 @@ const cambiarClave = async () => {
     claveError.value = 'Las contraseñas nuevas no coinciden.';
     return;
   }
-  guardando.value = true;
+  cargando.value = true;
   try {
     const res = await apiRequest('cambiar-clave', {
       method: 'POST',
@@ -250,7 +308,7 @@ const cambiarClave = async () => {
   } catch (err) {
     claveError.value = 'Error de red. Intenta nuevamente.';
   } finally {
-    guardando.value = false;
+    cargando.value = false;
   }
 };
 
@@ -341,6 +399,69 @@ const activarTenant = async (id) => {
     }
   } catch (err) {
     console.error(err);
+  } finally {
+    cargando.value = false;
+  }
+};
+
+const editarTenant = (tenant) => {
+  editForm.id = tenant.id;
+  editForm.nombre = tenant.nombre || '';
+  editError.value = '';
+  editExito.value = '';
+  showEditarTenant.value = true;
+};
+
+const cerrarEditarTenant = () => {
+  showEditarTenant.value = false;
+  editError.value = '';
+  editExito.value = '';
+  Object.assign(editForm, { id: '', nombre: '' });
+};
+
+const guardarEdicionTenant = async () => {
+  editError.value = '';
+  editExito.value = '';
+  if (!editForm.nombre.trim()) {
+    editError.value = 'El nombre no puede estar vacío.';
+    return;
+  }
+  cargando.value = true;
+  try {
+    const res = await apiRequest(`super-admin/tenants/${editForm.id}`, {
+      method: 'PUT',
+      data: { nombre: editForm.nombre }
+    });
+    if (res.success) {
+      editExito.value = '✓ Agencia actualizada correctamente.';
+      setTimeout(async () => {
+        cerrarEditarTenant();
+        await fetchTenants();
+      }, 800);
+    } else {
+      editError.value = res.error || 'No se pudo actualizar la agencia.';
+    }
+  } catch (err) {
+    editError.value = 'Error de red. Intenta nuevamente.';
+  } finally {
+    cargando.value = false;
+  }
+};
+
+const borrarTenant = async (id) => {
+  if (!confirm('¿Está completamente seguro de que desea ELIMINAR esta agencia?\n\nEsta acción no se puede deshacer.')) return;
+  cargando.value = true;
+  try {
+    const res = await apiRequest(`super-admin/tenants/${id}`, { method: 'DELETE' });
+    if (res.success) {
+      alert('Agencia eliminada correctamente');
+      await fetchTenants();
+    } else {
+      alert(`Error: ${res.error || 'No se pudo eliminar la agencia'}`);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error al procesar la eliminación');
   } finally {
     cargando.value = false;
   }
@@ -662,6 +783,13 @@ onMounted(() => {
 .btn-activar:hover:not(:disabled) {
   background-color: #28a745;
   color: white;
+}
+
+.actions-group {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .btn-delete {
