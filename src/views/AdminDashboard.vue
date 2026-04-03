@@ -53,64 +53,96 @@
 
         <div v-else class="flex-grow flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
             <!-- Dashboard Tab -->
-            <div v-if="activeTab === 'dashboard'" class="flex flex-col gap-8">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
-                        <h3 class="text-3xl font-bold mb-1">{{ companies.length }}</h3>
-                        <p class="text-sm font-medium opacity-90">Empresas Activas</p>
-                    </div>
-                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
-                        <h3 class="text-3xl font-bold mb-1">{{ users.length }}</h3>
-                        <p class="text-sm font-medium opacity-90">Total Usuarios</p>
-                    </div>
-                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
-                        <h3 class="text-3xl font-bold mb-1">{{users.filter(u => u.rol === 'admin').length}}</h3>
-                        <p class="text-sm font-medium opacity-90">Administradores</p>
-                    </div>
-                </div>
+            <div v-if="activeTab === 'dashboard'" class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
 
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                    <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                        <h3 class="font-bold text-slate-800 dark:text-white">Últimas Empresas</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 dark:bg-slate-800/50">
-                                <tr>
-                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Nombre</th>
-                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 w-[150px]">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                <tr v-for="company in companies.slice(0, 5)" :key="company.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td class="p-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-9 h-9 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">
-                                                {{ company.nombre.charAt(0) }}
+                <!-- Columna principal: Métricas -->
+                <div class="flex flex-col gap-5">
+                    <!-- DashboardMetrics solo para admins de tenant -->
+                    <DashboardMetrics
+                        v-if="authStore.user?.rol !== 'super-admin'"
+                        :data="dashboardStats"
+                        :loading="loadingStats"
+                    />
+                    <!-- Fallback para super-admin: tabla de empresas al frente -->
+                    <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-800">
+                            <h3 class="font-bold text-slate-800 dark:text-white text-sm">Todas las Empresas</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 dark:bg-slate-800/50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Nombre</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 w-[120px]">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr v-for="company in companies" :key="company.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-xs uppercase shrink-0">{{ company.nombre.charAt(0) }}</div>
+                                                <span class="font-semibold text-sm text-slate-700 dark:text-slate-200">{{ company.nombre }}</span>
                                             </div>
-                                            <span class="font-semibold text-slate-700 dark:text-slate-200">{{ company.nombre }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="p-4">
-                                        <button @click="exploreCompany(company)" class="bg-primary-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:brightness-110 active:scale-95 transition-all">
-                                            Explorar
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr v-if="companies.length === 0">
-                                    <td colspan="2" class="p-10 text-center text-slate-400 italic">No hay empresas registradas</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <button @click="exploreCompany(company)" class="bg-primary-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:brightness-110 active:scale-95 transition-all">Explorar</button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="companies.length === 0">
+                                        <td colspan="2" class="p-8 text-center text-slate-400 italic text-sm">No hay empresas registradas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Métricas del dashboard (solo para admins de tenant) -->
-                <DashboardMetrics
-                    v-if="authStore.user?.rol !== 'super-admin'"
-                    :data="dashboardStats"
-                    :loading="loadingStats"
-                />
+                <!-- Sidebar derecha: Stats + Últimas Empresas -->
+                <div class="flex flex-col gap-5">
+
+                    <!-- Stats cards compactas -->
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="bg-grad-primary p-4 rounded-xl text-white shadow-lg shadow-indigo-500/20 flex items-center gap-4">
+                            <div class="text-3xl font-bold leading-none">{{ companies.length }}</div>
+                            <div>
+                                <p class="text-xs font-medium opacity-80">Empresas</p>
+                                <p class="text-[10px] opacity-60">activas</p>
+                            </div>
+                        </div>
+                        <div class="bg-grad-primary p-4 rounded-xl text-white shadow-lg shadow-indigo-500/20 flex items-center gap-4">
+                            <div class="text-3xl font-bold leading-none">{{ users.length }}</div>
+                            <div>
+                                <p class="text-xs font-medium opacity-80">Usuarios</p>
+                                <p class="text-[10px] opacity-60">registrados</p>
+                            </div>
+                        </div>
+                        <div class="bg-grad-primary p-4 rounded-xl text-white shadow-lg shadow-indigo-500/20 flex items-center gap-4">
+                            <div class="text-3xl font-bold leading-none">{{ users.filter(u => u.rol === 'admin').length }}</div>
+                            <div>
+                                <p class="text-xs font-medium opacity-80">Admins</p>
+                                <p class="text-[10px] opacity-60">en el sistema</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Últimas Empresas (sidebar) — solo para no super-admin -->
+                    <div v-if="authStore.user?.rol !== 'super-admin'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                            <h3 class="font-bold text-slate-800 dark:text-white text-sm">Últimas Empresas</h3>
+                        </div>
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <div v-for="company in companies.slice(0, 5)" :key="company.id"
+                                class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <div class="w-8 h-8 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-xs uppercase shrink-0">{{ company.nombre.charAt(0) }}</div>
+                                <span class="flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{{ company.nombre }}</span>
+                                <button @click="exploreCompany(company)" class="bg-primary-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:brightness-110 active:scale-95 transition-all shrink-0">Ver</button>
+                            </div>
+                            <div v-if="companies.length === 0" class="p-6 text-center text-slate-400 italic text-xs">Sin empresas</div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
             <!-- Empresas Tab -->
