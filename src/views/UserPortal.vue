@@ -29,51 +29,49 @@
                         </span>
                     </button>
 
-                    <div v-for="(folder, index) in folders" :key="folder.id" 
-                        class="flex items-center gap-1 group/item transition-all"
+                    <button 
+                        v-for="(folder, index) in folders" 
+                        :key="folder.id"
+                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
+                        :class="[
+                            selectedFolderId === folder.id ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50',
+                            { 'opacity-50 scale-[0.98]': dragFolderIndex === index, 'border-t-2 border-primary-500': dragOverFolderIndex === index }
+                        ]"
+                        @click="selectedFolderId = folder.id"
                         :draggable="auth.user.puedeEliminar"
                         @dragstart="auth.user.puedeEliminar && onFolderDragStart($event, index)"
                         @dragover.prevent="auth.user.puedeEliminar && onFolderDragOver($event, index)"
                         @dragenter.prevent="auth.user.puedeEliminar && onFolderDragEnter($event, index)"
                         @drop.prevent="auth.user.puedeEliminar && onFolderDrop($event, index)" 
                         @dragend="onDragEnd"
-                        :class="{ 'opacity-50 scale-[0.98]': dragFolderIndex === index, 'border-t-2 border-primary-500': dragOverFolderIndex === index }"
                     >
-                        <div v-if="auth.user.puedeEliminar" class="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors opacity-0 group-hover/item:opacity-100">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
-                                <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
-                                <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
-                            </svg>
-                        </div>
+                        <svg v-if="auth.user.puedeEliminar" class="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                            <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                            <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
+                        </svg>
+                        
+                        <svg class="w-5 h-5 shrink-0 transition-colors" :class="[selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        <span class="flex-1 text-left line-clamp-2">{{ folder.nombre }}</span>
+                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors whitespace-nowrap ml-2 shrink-0" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
+                            {{ iconCountByFolder[folder.id] || 0 }}
+                        </span>
 
-                        <button 
-                            class="flex-1 flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
-                            :class="[selectedFolderId === folder.id ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
-                            @click="selectedFolderId = folder.id"
-                        >
-                            <svg class="w-5 h-5 shrink-0 transition-colors" :class="[selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                            </svg>
-                            <span class="flex-1 text-left line-clamp-2">{{ folder.nombre }}</span>
-                            <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors whitespace-nowrap ml-2" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
-                                {{ iconCountByFolder[folder.id] || 0 }}
-                            </span>
-                        </button>
-
-                        <div class="flex gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity pr-2" v-if="auth.user.puedeEliminar">
-                            <button @click="openRenameFolderModal(folder)" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Renombrar">
+                        <div class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" v-if="auth.user.puedeEliminar">
+                            <button @click.stop="openRenameFolderModal(folder)" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all shrink-0" title="Renombrar">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                             </button>
-                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click="handleDeleteFolder(folder)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all" title="Eliminar">
+                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click.stop="handleDeleteFolder(folder)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all shrink-0" title="Eliminar">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                                 </svg>
                             </button>
                         </div>
-                    </div>
+                    </button>
                 </nav>
             </aside>
 
