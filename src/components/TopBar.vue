@@ -9,6 +9,24 @@
             <span class="font-bold text-lg text-slate-900 dark:text-white tracking-tight">{{ auth.tenantName || 'Content 360' }}</span>
         </div>
 
+        <!-- Buscador central -->
+        <div class="flex-1 max-w-md mx-6">
+            <div class="relative">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input
+                    v-model="searchStore.query"
+                    type="text"
+                    placeholder="Buscar íconos..."
+                    class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
+                />
+                <button v-if="searchStore.query" @click="searchStore.clear()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+
         <div class="flex items-center gap-4">
             <button @click="toggleTheme" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 transition-all" :title="isDark ? 'Modo Claro' : 'Modo Oscuro'">
                 <svg v-if="isDark" class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,10 +68,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useSearchStore } from '@/stores/search';
 import { useRouter } from 'vue-router';
 import ChangePasswordModal from './ChangePasswordModal.vue';
 
 const auth = useAuthStore();
+const searchStore = useSearchStore();
 const router = useRouter();
 
 const isDark = ref(false);
@@ -85,7 +105,6 @@ onMounted(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     isDark.value = savedTheme === 'dark';
     
-    // Aplicar tema al montar
     const root = document.documentElement;
     if (isDark.value) {
         root.classList.add('dark');
@@ -105,3 +124,4 @@ const logout = () => {
 <style scoped>
 /* All styles handled by Tailwind v4 */
 </style>
+

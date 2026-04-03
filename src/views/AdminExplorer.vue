@@ -3,90 +3,121 @@
         <TopBar />
 
         <div class="flex-1 flex overflow-hidden">
-            <!-- Sidebar: Folders -->
-            <aside class="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col py-8 shadow-sm transition-colors duration-300">
-                <div class="px-6 pb-4 flex justify-between items-center">
-                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Carpetas</h2>
-                    <button @click="showAddFolder = true" class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Nueva Carpeta">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <!-- Sidebar: Folders -->
+            <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 flex flex-col transition-colors duration-300">
+
+                <!-- Brand header -->
+                <div class="h-16 px-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 bg-grad-primary rounded-lg flex items-center justify-center text-white shadow shadow-indigo-500/20">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </div>
+                        <span class="font-bold text-sm text-slate-900 dark:text-white tracking-tight truncate">{{ companyName }}</span>
+                    </div>
+                    <router-link to="/admin" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors" title="Volver">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                    </router-link>
+                </div>
+
+                <!-- "Todas" nav item -->
+                <div class="px-3 pt-4 pb-2">
+                    <button
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="!selectedFolderId
+                            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-200'"
+                        @click="selectedFolderId = null"
+                    >
+                        <svg class="w-4.5 h-4.5 shrink-0" :class="!selectedFolderId ? 'text-primary-500' : 'text-slate-400'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                        </svg>
+                        <span class="flex-1 text-left">Todas las carpetas</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                            :class="!selectedFolderId ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'">
+                            {{ icons.length }}
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Section label + add button -->
+                <div class="px-5 pt-2 pb-1 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Carpetas</span>
+                    <button @click="showAddFolder = true" class="p-1 text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Nueva carpeta">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M12 5v14M5 12h14" />
                         </svg>
                     </button>
                 </div>
 
-                <nav class="flex-1 overflow-y-auto px-3 space-y-0.5 custom-scrollbar">
-                    <button 
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
-                        :class="[!selectedFolderId ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
-                        @click="selectedFolderId = null"
-                    >
-                        <div v-if="auth.user.puedeEliminar" class="w-4 shrink-0"></div>
-                        <svg class="w-5 h-5 shrink-0 transition-colors" :class="[!selectedFolderId ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-                        </svg>
-                        <span class="flex-1 text-left">Todas las carpetas</span>
-                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors" :class="[!selectedFolderId ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
-                            {{ icons.length }}
-                        </span>
-                    </button>
-
-                    <button 
-                        v-for="(folder, index) in folders" 
+                <!-- Folder list -->
+                <nav class="flex-1 overflow-y-auto px-3 pb-4 space-y-0.5 custom-scrollbar">
+                    <button
+                        v-for="(folder, index) in folders"
                         :key="folder.id"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group"
                         :class="[
-                            selectedFolderId === folder.id ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50',
-                            { 'opacity-50 scale-[0.98]': dragFolderIndex === index, 'border-t-2 border-primary-500': dragOverFolderIndex === index }
+                            selectedFolderId === folder.id
+                                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300'
+                                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-200',
+                            { 'opacity-50 scale-[0.98]': dragFolderIndex === index, 'border-t-2 border-primary-400': dragOverFolderIndex === index }
                         ]"
                         @click="selectedFolderId = folder.id"
                         :draggable="auth.user.puedeEliminar"
                         @dragstart="auth.user.puedeEliminar && onFolderDragStart($event, index)"
                         @dragover.prevent="auth.user.puedeEliminar && onFolderDragOver($event, index)"
                         @dragenter.prevent="auth.user.puedeEliminar && onFolderDragEnter($event, index)"
-                        @drop.prevent="auth.user.puedeEliminar && onFolderDrop($event, index)" 
+                        @drop.prevent="auth.user.puedeEliminar && onFolderDrop($event, index)"
                         @dragend="onDragEnd"
                     >
-                        <svg v-if="auth.user.puedeEliminar" class="w-4 h-4 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <!-- Drag handle -->
+                        <svg v-if="auth.user.puedeEliminar" class="w-3 h-3 cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
                             <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
                             <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
                         </svg>
-                        
-                        <svg class="w-5 h-5 shrink-0 transition-colors" :class="[selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                        <svg class="w-4.5 h-4.5 shrink-0 transition-colors" :class="selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-500'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                         </svg>
-                        <span class="flex-1 text-left line-clamp-2">{{ folder.nombre }}</span>
-                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors whitespace-nowrap ml-2 shrink-0" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
+
+                        <span class="flex-1 text-left line-clamp-2 leading-snug">{{ folder.nombre }}</span>
+
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 whitespace-nowrap"
+                            :class="selectedFolderId === folder.id ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'">
                             {{ iconCountByFolder[folder.id] || 0 }}
                         </span>
 
-                        <div class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" v-if="auth.user.puedeEliminar">
-                            <button @click.stop="openRenameFolderModal(folder)" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all shrink-0" title="Renombrar">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <!-- Actions on hover -->
+                        <div v-if="auth.user.puedeEliminar" class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button @click.stop="openRenameFolderModal(folder)" class="p-1 text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Renombrar">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                             </button>
-                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click.stop="handleDeleteFolder(folder)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all shrink-0" title="Eliminar">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click.stop="handleDeleteFolder(folder)" class="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all" title="Eliminar">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                                 </svg>
                             </button>
                         </div>
                     </button>
+
+                    <div v-if="folders.length === 0" class="px-3 py-6 text-xs text-slate-400 dark:text-slate-600 text-center">
+                        Sin carpetas aún
+                    </div>
                 </nav>
             </aside>
 
             <!-- Main Content: Icons Grid -->
-            <main class="flex-1 flex flex-col p-10 overflow-y-auto custom-scrollbar transition-colors">
-                <header class="flex justify-between items-center mb-10 shrink-0">
+            <main class="flex-1 flex flex-col p-8 overflow-y-auto custom-scrollbar transition-colors">
+                <header class="flex justify-between items-center mb-8 shrink-0">
                     <div class="flex items-center gap-2 text-sm font-medium">
-                        <router-link to="/admin" class="text-primary-500 hover:underline">Empresas</router-link>
-                        <span class="text-slate-300 dark:text-slate-700">/</span>
-                        <span class="text-slate-900 dark:text-white font-bold">{{ companyName }}</span>
-                        <template v-if="selectedFolderName">
-                            <span class="text-slate-300 dark:text-slate-700">/</span>
-                            <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-full text-xs font-bold">{{ selectedFolderName }}</span>
-                        </template>
+                        <span class="text-slate-900 dark:text-white font-bold text-base">{{ selectedFolderName || 'Todos los íconos' }}</span>
+                        <span v-if="searchStore.query" class="px-2.5 py-1 bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-full text-xs font-bold">
+                            "{{ searchStore.query }}" — {{ filteredIcons.length }} resultado{{ filteredIcons.length !== 1 ? 's' : '' }}
+                        </span>
                     </div>
 
                     <BaseButton variant="primary" @click="showUpload = true">
@@ -239,9 +270,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useSearchStore } from '@/stores/search';
 import { apiRequest, trackIconClick } from '@/api/service';
 import TopBar from '@/components/TopBar.vue';
 import BaseButton from '@/components/BaseButton.vue';
@@ -250,6 +282,7 @@ import BaseModal from '@/components/BaseModal.vue';
 
 const route = useRoute();
 const auth = useAuthStore();
+const searchStore = useSearchStore();
 
 const companyId = route.params.id;
 const companyName = route.params.nombre;
@@ -293,8 +326,12 @@ const selectedFolderName = computed(() => {
 });
 
 const filteredIcons = computed(() => {
-    if (!selectedFolderId.value) return icons.value;
-    return icons.value.filter(i => i.carpetaId === selectedFolderId.value);
+    let list = selectedFolderId.value
+        ? icons.value.filter(i => i.carpetaId === selectedFolderId.value)
+        : icons.value;
+    const q = searchStore.query.trim().toLowerCase();
+    if (q) list = list.filter(i => (i.etiqueta || '').toLowerCase().includes(q));
+    return list;
 });
 
 const iconCountByFolder = computed(() => {
@@ -322,6 +359,7 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
+onUnmounted(() => searchStore.clear());
 
 // --- DRAG AND DROP LOGIC PARA CARPETAS ---
 const dragFolderIndex = ref(null);
