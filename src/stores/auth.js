@@ -4,6 +4,7 @@ import { apiRequest } from "@/api/service";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: JSON.parse(localStorage.getItem("user")) || null,
+    tenantName: localStorage.getItem("tenantName") || null,
     isAuthenticated: !!localStorage.getItem("user"),
     loading: false,
     error: null,
@@ -30,6 +31,15 @@ export const useAuthStore = defineStore("auth", {
         this.isAuthenticated = true;
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("auth_token", res.token);
+        
+        // Cargar info del tenant inmediatamente tras el login (si no es super-admin)
+        if (userData.rol !== 'super-admin') {
+          await this.fetchTenantInfo();
+        } else {
+          this.tenantName = null;
+          localStorage.removeItem("tenantName");
+        }
+
         return { success: true };
       } else {
         this.error = res.error || "Credenciales inválidas";
@@ -39,10 +49,29 @@ export const useAuthStore = defineStore("auth", {
 
     logout() {
       this.user = null;
+      this.tenantName = null;
       this.isAuthenticated = false;
       localStorage.removeItem("user");
+      localStorage.removeItem("tenantName");
       localStorage.removeItem("auth_token");
       apiRequest("logout", { method: "POST" }).catch(() => {});
+    },
+
+    async fetchTenantInfo() {
+      if (this.user?.rol === 'super-admin') {
+        this.tenantName = null;
+        return;
+      }
+      
+      try {
+        const res = await apiRequest("tenant-info");
+        if (res.success) {
+          this.tenantName = res.nombre;
+          localStorage.setItem("tenantName", res.nombre);
+        }
+      } catch (e) {
+        console.error("Error al obtener info del tenant:", e);
+      }
     },
 
     async checkBootstrap() {

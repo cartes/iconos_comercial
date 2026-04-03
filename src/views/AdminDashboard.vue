@@ -7,7 +7,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
-          Panel {{ authStore.user?.empresa || 'Administrativo' }}
+          Panel {{ authStore.user?.rol === 'super-admin' ? 'Administrativo' : (authStore.tenantName || 'Administrativo') }}
         </h1>
         <div class="flex items-center gap-4">
           <button @click="toggleTheme" class="p-2 hover:bg-white/15 rounded-lg transition-colors"
@@ -364,7 +364,7 @@ const fetchData = async () => {
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     fetchData();
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -373,6 +373,11 @@ onMounted(() => {
         isDark.value = false;
     }
     updateTheme();
+
+    // Cargar info del tenant si falta (para usuarios no super-admin)
+    if (authStore.isAuthenticated && authStore.user?.rol !== 'super-admin' && !authStore.tenantName) {
+        await authStore.fetchTenantInfo();
+    }
 });
 
 const saveCompany = async () => {

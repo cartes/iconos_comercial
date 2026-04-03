@@ -6,7 +6,7 @@
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
             </div>
-            <span class="font-bold text-lg text-slate-900 dark:text-white tracking-tight">Sistema de Gestión</span>
+            <span class="font-bold text-lg text-slate-900 dark:text-white tracking-tight">{{ auth.tenantName || 'Content 360' }}</span>
         </div>
 
         <div class="flex items-center gap-4">
