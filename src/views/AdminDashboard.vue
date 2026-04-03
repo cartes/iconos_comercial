@@ -1,311 +1,279 @@
 <template>
-    <div class="legacy-body">
-        <div class="legacy-container">
-            <header class="legacy-header">
-                <h1>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                    Panel Administrativo
-                </h1>
-                <div class="legacy-header-actions">
-                    <button @click="toggleTheme" class="icon-btn theme-btn header-btn-icon"
-                        :title="isDark ? 'Modo Claro' : 'Modo Oscuro'">
-                        <!-- Sun Icon -->
-                        <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            width="20" height="20">
-                            <circle cx="12" cy="12" r="5" />
-                            <line x1="12" y1="1" x2="12" y2="3" />
-                            <line x1="12" y1="21" x2="12" y2="23" />
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                            <line x1="18.36" y1="19.36" x2="19.78" y2="19.78" />
-                            <line x1="1" y1="12" x2="3" y2="12" />
-                            <line x1="21" y1="12" x2="23" y2="12" />
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                        </svg>
-                        <!-- Moon Icon -->
-                        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
-                            height="20">
-                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                        </svg>
-                    </button>
-                    <span class="user-info-text">
-                        Hola, {{ authStore.user?.email || 'Admin' }}
-                    </span>
-                    <button class="btn btn-primary logout-btn-legacy" @click="logout" title="Cerrar Sesión">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                            height="18">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-                        </svg>
-                        Salir
-                    </button>
-                </div>
-            </header>
+  <div class="min-h-screen bg-grad-primary p-5 flex justify-center items-start overflow-auto transition-colors duration-300">
+    <div class="max-w-7xl w-full bg-white dark:bg-[#1e1e2d] rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[90vh] transition-colors duration-300">
+      <!-- Header -->
+      <header class="bg-grad-primary text-white p-5 md:p-7 flex justify-between items-center shrink-0 transition-all">
+        <h1 class="text-2xl font-bold flex items-center gap-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Panel Administrativo
+        </h1>
+        <div class="flex items-center gap-4">
+          <button @click="toggleTheme" class="p-2 hover:bg-white/15 rounded-lg transition-colors"
+            :title="isDark ? 'Modo Claro' : 'Modo Oscuro'">
+            <svg v-if="isDark" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="19.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          </button>
+          <span class="hidden sm:inline font-medium">Hola, {{ authStore.user?.email || 'Admin' }}</span>
+          <button class="bg-white text-primary-600 px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2" @click="logout" title="Cerrar Sesión">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+            Salir
+          </button>
+        </div>
+      </header>
 
-            <main class="legacy-content content">
-                <div class="tabs">
-                    <button :class="['tab-btn', { 'activo': activeTab === 'dashboard' }]"
-                        @click="activeTab = 'dashboard'">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-                            height="16">
-                            <path d="M18 20V10M12 20V4M6 20v-4" />
-                        </svg>
-                        Dashboard
-                    </button>
-                    <button :class="['tab-btn', { 'activo': activeTab === 'empresas' }]"
-                        @click="activeTab = 'empresas'">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-                            height="16">
-                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                            <path
-                                d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" />
-                        </svg>
-                        Empresas
-                    </button>
-                    <button :class="['tab-btn', { 'activo': activeTab === 'usuarios' }]"
-                        @click="activeTab = 'usuarios'">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-                            height="16">
-                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 00-3-3.87" />
-                            <path d="M16 3.13a4 4 0 010 7.75" />
-                        </svg>
-                        Usuarios
-                    </button>
-                </div>
+      <main class="p-5 md:p-8 flex-grow flex flex-col overflow-hidden">
+        <!-- Tabs -->
+        <div class="flex gap-4 mb-8 border-b border-slate-200 dark:border-slate-800 transition-colors">
+          <button v-for="tab in ['dashboard', 'empresas', 'usuarios']" :key="tab"
+            :class="['px-6 py-4 font-semibold text-sm transition-all border-b-2 capitalize flex items-center gap-2', 
+                    activeTab === tab ? 'text-primary-600 border-primary-600 dark:text-primary-400 dark:border-primary-400 bg-slate-50 dark:bg-slate-800/50 rounded-t-lg' : 'text-slate-400 border-transparent hover:text-primary-500 hover:bg-slate-50/50 dark:hover:bg-slate-800/30']"
+            @click="activeTab = tab">
+            <svg v-if="tab === 'dashboard'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-4" /></svg>
+            <svg v-if="tab === 'empresas'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" /></svg>
+            <svg v-if="tab === 'usuarios'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
+            {{ tab }}
+          </button>
+        </div>
 
-                <div v-if="loading" class="loading-container">
-                    <span class="spinner-large"></span>
-                    <p>Sincronizando datos...</p>
-                </div>
+        <div v-if="loading" class="flex-grow flex flex-col items-center justify-center p-20 gap-4 text-slate-400 transition-opacity">
+            <div class="w-10 h-10 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+            <p class="font-medium">Sincronizando datos...</p>
+        </div>
 
-                <div v-else-if="activeTab === 'dashboard'" class="section activo">
-                    <div class="estadisticas">
-                        <div class="stat-card tooltip-stat">
-                            <h3>{{ companies.length }}</h3>
-                            <p>Empresas Activas</p>
-                        </div>
-                        <div class="stat-card tooltip-stat">
-                            <h3>{{ users.length }}</h3>
-                            <p>Total Usuarios</p>
-                        </div>
-                        <div class="stat-card tooltip-stat">
-                            <h3>{{users.filter(u => u.rol === 'admin').length}}</h3>
-                            <p>Administradores</p>
-                        </div>
+        <div v-else class="flex-grow flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <!-- Dashboard Tab -->
+            <div v-if="activeTab === 'dashboard'" class="flex flex-col gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
+                        <h3 class="text-3xl font-bold mb-1">{{ companies.length }}</h3>
+                        <p class="text-sm font-medium opacity-90">Empresas Activas</p>
                     </div>
-
-                    <div class="dashboard-companies">
-                        <h3>Empresas Registradas</h3>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th style="width: 150px">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="company in companies.slice(0, 5)" :key="company.id">
-                                        <td>
-                                            <div class="entity-name">
-                                                <span class="avatar">{{ company.nombre.charAt(0) }}</span>
-                                                {{ company.nombre }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-primary" @click="exploreCompany(company)"
-                                                style="padding: 5px 10px; font-size: 12px;">
-                                                Explorar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="companies.length === 0" class="empty-row">
-                                        <td colspan="2">No hay empresas registradas</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
+                        <h3 class="text-3xl font-bold mb-1">{{ users.length }}</h3>
+                        <p class="text-sm font-medium opacity-90">Total Usuarios</p>
+                    </div>
+                    <div class="bg-grad-primary p-6 rounded-xl text-white shadow-lg shadow-indigo-500/20 text-center">
+                        <h3 class="text-3xl font-bold mb-1">{{users.filter(u => u.rol === 'admin').length}}</h3>
+                        <p class="text-sm font-medium opacity-90">Administradores</p>
                     </div>
                 </div>
 
-                <div v-else-if="activeTab === 'empresas'" class="section activo">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2>Gestión de Empresas</h2>
-                        <button class="btn btn-success" @click="showAddCompanyModal = true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-                                height="16">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            Nueva Empresa
-                        </button>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Últimas Empresas</h3>
                     </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50">
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>ID</th>
-                                    <th>Acciones</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Nombre</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 w-[150px]">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="company in companies" :key="company.id">
-                                    <td>
-                                        <div class="entity-name">
-                                            <span class="avatar">{{ company.nombre.charAt(0) }}</span>
-                                            {{ company.nombre }}
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr v-for="company in companies.slice(0, 5)" :key="company.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">
+                                                {{ company.nombre.charAt(0) }}
+                                            </div>
+                                            <span class="font-semibold text-slate-700 dark:text-slate-200">{{ company.nombre }}</span>
                                         </div>
                                     </td>
-                                    <td class="id-cell">{{ company.id }}</td>
-                                    <td class="actions-cell">
-                                        <button class="btn btn-primary" @click="exploreCompany(company)"
-                                            style="padding: 5px 10px; font-size: 12px;">
+                                    <td class="p-4">
+                                        <button @click="exploreCompany(company)" class="bg-primary-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:brightness-110 active:scale-95 transition-all">
                                             Explorar
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="companies.length === 0" class="empty-row">
-                                    <td colspan="3">No hay empresas registradas</td>
+                                <tr v-if="companies.length === 0">
+                                    <td colspan="2" class="p-10 text-center text-slate-400 italic">No hay empresas registradas</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
 
-                <div v-else-if="activeTab === 'usuarios'" class="section activo">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2>Gestión de Usuarios</h2>
-                        <button class="btn btn-success" @click="showAddUserModal = true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-                                height="16">
-                                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                <circle cx="8.5" cy="7" r="4" />
-                                <line x1="20" y1="8" x2="20" y2="14" />
-                                <line x1="23" y1="11" x2="17" y2="11" />
-                            </svg>
-                            Nuevo Usuario
-                        </button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
+            <!-- Empresas Tab -->
+            <div v-else-if="activeTab === 'empresas'" class="flex flex-col gap-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-white">Gestión de Empresas</h2>
+                    <button class="bg-success-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded-lg text-sm shadow-md transition-all active:scale-95 flex items-center gap-2" @click="showAddCompanyModal = true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Nueva Empresa
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Nombre</th>
+                                <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">ID</th>
+                                <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr v-for="company in companies" :key="company.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">
+                                            {{ company.nombre.charAt(0) }}
+                                        </div>
+                                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ company.nombre }}</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-xs font-mono text-slate-500 dark:text-slate-400">{{ company.id }}</td>
+                                <td class="p-4">
+                                    <button @click="exploreCompany(company)" class="bg-primary-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:brightness-110 active:scale-95 transition-all">
+                                        Explorar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="companies.length === 0">
+                                <td colspan="3" class="p-10 text-center text-slate-400 italic">No hay empresas registradas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Usuarios Tab -->
+            <div v-else-if="activeTab === 'usuarios'" class="flex flex-col gap-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-white">Gestión de Usuarios</h2>
+                    <button class="bg-success-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded-lg text-sm shadow-md transition-all active:scale-95 flex items-center gap-2" @click="showAddUserModal = true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg>
+                        Nuevo Usuario
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col flex-grow">
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                                 <tr>
-                                    <th>Email</th>
-                                    <th>Nombre</th>
-                                    <th>Rol</th>
-                                    <th>Empresa</th>
-                                    <th>Puede Eliminar</th>
-                                    <th style="width: 100px; text-align: center;">Acciones</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Usuario</th>
+                                    <th class="p-4 text-[11px) font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Rol</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Empresa</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Permisos</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-center w-[100px]">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="user in paginatedUsers" :key="user.email">
-                                    <td class="email">{{ user.email }}</td>
-                                    <td class="name">{{ user.nombre }}</td>
-                                    <td>
-                                        <span :class="['badge', 'badge-' + user.rol]">
-                                            {{ user.rol === 'admin' ? 'admin' : (user.rol === 'editor' ? 'editor' :
-                                            'usuario') }}
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr v-for="user in paginatedUsers" :key="user.email" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-slate-700 dark:text-slate-200">{{ user.nombre }}</span>
+                                            <span class="text-xs text-slate-500 dark:text-slate-400 italic underline">{{ user.email }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span :class="[
+                                            'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter',
+                                            user.rol === 'admin' ? 'bg-red-500 text-white' : 
+                                            user.rol === 'editor' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
+                                        ]">
+                                            {{ user.rol === 'admin' ? 'admin' : (user.rol === 'editor' ? 'editor' : 'usuario') }}
                                         </span>
                                     </td>
-                                    <td class="empresa-cell">
-                                        <span v-if="user.empresaNombre || user.empresa" class="badge badge-empresa">
+                                    <td class="p-4">
+                                        <span v-if="user.empresaNombre || user.empresa" class="text-xs font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-300">
                                             {{ user.empresaNombre || user.empresa }}
                                         </span>
-                                        <span v-else>-</span>
+                                        <span v-else class="text-slate-300">—</span>
                                     </td>
-                                    <td>
-                                        <div class="switch-container" v-if="user.rol !== 'admin'">
-                                            <label class="switch">
-                                                <input type="checkbox" :checked="!!user.puedeEliminar"
-                                                    @change="toggleDeletePermission(user, $event.target.checked)">
-                                                <span class="slider round"></span>
-                                            </label>
+                                    <td class="p-4">
+                                        <div class="flex items-center" v-if="user.rol !== 'admin'">
+                                            <BaseSwitch :modelValue="!!user.puedeEliminar" @update:modelValue="toggleDeletePermission(user, $event)" title="Permiso para eliminar" />
+                                            <span class="ml-2 text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Eliminar</span>
                                         </div>
-                                        <span v-else class="admin-shield" title="Administrador tiene permisos totales">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                width="18" height="18" color="#dc3545">
+                                        <div v-else class="text-red-500" title="Administrador tiene permisos totales">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                             </svg>
-                                        </span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-delete tooltip-action" @click="deleteUser(user)"
-                                            v-if="user.email !== authStore.user?.email" title="Eliminar usuario">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                width="16" height="16">
-                                                <path
-                                                    d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-                                            </svg>
-                                        </button>
+                                    <td class="p-4">
+                                        <div class="flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button @click="deleteUser(user)" v-if="user.email !== authStore.user?.email" class="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-lg border border-red-500/20 transition-all" title="Eliminar usuario">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
-                                <tr v-if="paginatedUsers.length === 0" class="empty-row">
-                                    <td colspan="6">No hay usuarios registrados</td>
+                                <tr v-if="paginatedUsers.length === 0">
+                                    <td colspan="5" class="p-10 text-center text-slate-400 italic">No hay usuarios registrados</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="pagination-controls" v-if="totalPages > 1">
-                        <button class="btn btn-primary btn-sm" @click="prevPage"
-                            :disabled="currentPage === 1">Anterior</button>
-                        <span class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
-                        <button class="btn btn-primary btn-sm" @click="nextPage"
-                            :disabled="currentPage === totalPages">Siguiente</button>
+                    <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center" v-if="totalPages > 1">
+                        <button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition-all" @click="prevPage" :disabled="currentPage === 1">Anterior</button>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Página {{ currentPage }} de {{ totalPages }}</span>
+                        <button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition-all" @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
-
-        <!-- Modals -->
-        <BaseModal :show="showAddCompanyModal" title="Nueva Empresa" @close="showAddCompanyModal = false">
-            <form @submit.prevent="saveCompany" class="modal-form">
-                <BaseInput label="Nombre de la Empresa" v-model="newCompany.nombre" placeholder="Ej. Content 360"
-                    required />
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Guardar Empresa</BaseButton>
-                </div>
-            </form>
-        </BaseModal>
-
-        <BaseModal :show="showAddUserModal" title="Nuevo Usuario" @close="showAddUserModal = false">
-            <form @submit.prevent="saveUser" class="modal-form">
-                <BaseInput label="Nombre Completo" v-model="newUser.nombre" placeholder="Juan Pérez" required />
-                <BaseInput label="Email" type="email" v-model="newUser.email" placeholder="juan@empresa.com" required />
-                <BaseInput label="Contraseña" type="password" v-model="newUser.clave" placeholder="••••••••" required />
-
-                <div class="form-group">
-                    <label class="label">Rol</label>
-                    <select v-model="newUser.rol" class="select-input">
-                        <option value="usuario">Usuario Estándar</option>
-                        <option value="editor">Editor</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                </div>
-
-                <div class="form-group" v-if="newUser.rol === 'usuario' || newUser.rol === 'editor'">
-                    <label class="label">Empresa</label>
-                    <select v-model="newUser.empresaId" class="select-input" required>
-                        <option value="" disabled>Selecciona una empresa</option>
-                        <option v-for="c in companies" :key="c.id" :value="c.id">
-                            {{ c.nombre }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Crear Usuario</BaseButton>
-                </div>
-            </form>
-        </BaseModal>
+      </main>
     </div>
+
+    <!-- Modals -->
+    <BaseModal :show="showAddCompanyModal" title="Nueva Empresa" @close="showAddCompanyModal = false">
+        <form id="addCompanyForm" @submit.prevent="saveCompany" class="flex flex-col gap-6">
+            <BaseInput label="Nombre de la Empresa" v-model="newCompany.nombre" placeholder="Ej. Content 360" required />
+        </form>
+        <template #footer>
+            <BaseButton variant="secondary" @click="showAddCompanyModal = false">Cancelar</BaseButton>
+            <BaseButton form="addCompanyForm" type="submit" :loading="saving">Guardar Empresa</BaseButton>
+        </template>
+    </BaseModal>
+
+    <BaseModal :show="showAddUserModal" title="Nuevo Usuario" @close="showAddUserModal = false">
+        <form id="addUserForm" @submit.prevent="saveUser" class="flex flex-col gap-4">
+            <BaseInput label="Nombre Completo" v-model="newUser.nombre" placeholder="Juan Pérez" required />
+            <BaseInput label="Email" type="email" v-model="newUser.email" placeholder="juan@empresa.com" required />
+            <BaseInput label="Contraseña" type="password" v-model="newUser.clave" placeholder="••••••••" required />
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Rol</label>
+                <select v-model="newUser.rol" class="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
+                    <option value="usuario">Usuario Estándar</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col gap-1.5" v-if="newUser.rol === 'usuario' || newUser.rol === 'editor'">
+                <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Empresa</label>
+                <select v-model="newUser.empresaId" class="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" required>
+                    <option value="" disabled>Selecciona una empresa</option>
+                    <option v-for="c in companies" :key="c.id" :value="c.id">
+                        {{ c.nombre }}
+                    </option>
+                </select>
+            </div>
+        </form>
+        <template #footer>
+            <BaseButton variant="secondary" @click="showAddUserModal = false">Cancelar</BaseButton>
+            <BaseButton form="addUserForm" type="submit" :loading="saving">Crear Usuario</BaseButton>
+        </template>
+    </BaseModal>
+  </div>
 </template>
 
 <script setup>
@@ -327,7 +295,7 @@ const saving = ref(false);
 const activeTab = ref('dashboard');
 
 const currentPage = ref(1);
-const itemsPerPage = 8; // Ajustable
+const itemsPerPage = 8;
 
 const paginatedUsers = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage;
@@ -356,7 +324,7 @@ const newUser = reactive({
     empresaId: ''
 });
 
-// Theme logic scoped properly
+// Theme
 const isDark = ref(false);
 
 const toggleTheme = () => {
@@ -442,7 +410,7 @@ const exploreCompany = (company) => {
 
 const toggleDeletePermission = async (user, newValue) => {
     const originalValue = user.puedeEliminar;
-    user.puedeEliminar = newValue; // Optimistic update
+    user.puedeEliminar = newValue;
 
     try {
         const res = await apiRequest(`usuarios/${user.email}`, {
@@ -454,7 +422,7 @@ const toggleDeletePermission = async (user, newValue) => {
             alert(res.error || 'Error al actualizar permiso');
             user.puedeEliminar = originalValue;
         }
-    } catch (e) {
+    } catch {
         alert('Error de conexión');
         user.puedeEliminar = originalValue;
     }
@@ -468,637 +436,16 @@ const deleteUser = async (user) => {
     try {
         const res = await apiRequest(`usuarios/${user.email}`, { method: 'DELETE' });
         if (res.success) {
-            fetchData(); // Recarga la lista de usuarios
+            fetchData();
         } else {
             alert(res.error || 'Error al eliminar usuario');
         }
-    } catch (error) {
+    } catch {
         alert('Error de conexión al eliminar usuario');
     }
 };
 </script>
 
 <style scoped>
-/* LEGACY EXACT STYLES */
-.legacy-body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* In case the window is tall */
-}
-
-.legacy-container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 90vh;
-}
-
-:global(.dark) .legacy-container {
-    background: #1e1e2d !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
-}
-
-:global(.dark) h2 {
-    color: #ffffff !important;
-}
-
-.legacy-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.legacy-header h1 {
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 0;
-    color: white;
-}
-
-.legacy-header-actions {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.user-info-text {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-}
-
-.header-btn-icon {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    border-radius: 8px;
-    transition: background 0.2s;
-}
-
-.header-btn-icon:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.btn-primary.logout-btn-legacy {
-    background: #fff;
-    color: #667eea;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-primary.logout-btn-legacy:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.legacy-content {
-    padding: 30px;
-    overflow-y: hidden;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* TABS SYSTEM */
-.tabs {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 0;
-}
-
-:global(.dark) .tabs {
-    border-bottom-color: var(--color-border);
-}
-
-.tab-btn {
-    padding: 15px 25px;
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    color: #999;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: -2px;
-}
-
-.tab-btn.activo {
-    color: #667eea;
-    border-bottom-color: #667eea;
-    background: #f8f9fa;
-    border-radius: 8px 8px 0 0;
-}
-
-.tab-btn:hover:not(.activo) {
-    color: #667eea;
-    background: #fafafa;
-}
-
-.section {
-    display: none;
-}
-
-.section.activo {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* STATS */
-.estadisticas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.stat-card h3 {
-    font-size: 32px;
-    margin-bottom: 10px;
-    color: #ffffff;
-}
-
-.stat-card p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 15px;
-    margin: 0;
-    font-weight: 500;
-}
-
-/* BUTTONS */
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-primary {
-    background: #fff;
-    color: #667eea;
-    border: 1px solid #e0e0e0;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.btn-success {
-    background: #28a745;
-    color: white;
-}
-
-.btn-success:hover {
-    background: #218838;
-}
-
-.btn-delete {
-    background-color: transparent;
-    color: #ef4444;
-    border: 1px solid #ef4444;
-    padding: 6px 10px;
-}
-
-.btn-delete:hover {
-    background-color: #ef4444;
-    color: white;
-}
-
-/* BADGES */
-.badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.badge-admin {
-    background: #dc3545;
-    color: white;
-}
-
-.badge-editor {
-    background: #fd7e14;
-    color: white;
-}
-
-.badge-usuario {
-    background: #28a745;
-    color: white;
-}
-
-.badge-empresa {
-    background: #e2e8f0;
-    color: #4a5568;
-}
-
-:global(.dark) .badge-empresa {
-    background: var(--slate-700);
-    color: var(--slate-300);
-}
-
-/* SWITCH */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 20px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked+.slider {
-    background-color: #2196F3;
-}
-
-input:focus+.slider {
-    box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked+.slider:before {
-    transform: translateX(20px);
-}
-
-/* TABLE OVERRIDES TO MATCH LEGACY */
-.table-responsive {
-    overflow-x: auto;
-    overflow-y: auto;
-    flex-grow: 1;
-    min-height: 0;
-    max-height: calc(90vh - 250px);
-    /* Altura máxima para forzar scroll dentro del div en vez de usar la página */
-    position: relative;
-    /* Necesario para contexto de los sticky headers */
-}
-
-table {
-    width: 100%;
-    border-collapse: separate;
-    /* Instead of collapse for better sticky support */
-    border-spacing: 0;
-    margin-top: 0;
-    /* Changed margins to manage header scroll spacing */
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-table thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-table th {
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    color: #333;
-    background: #f8f9fa;
-    /* Move background to th for better stickiness */
-    border-bottom: 2px solid #e0e0e0;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-table td {
-    padding: 15px;
-    border-bottom: 1px solid #e0e0e0;
-    vertical-align: middle;
-}
-
-table tr:last-child td {
-    border-bottom: none;
-}
-
-.dashboard-companies {
-    margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    overflow: hidden;
-}
-
-.dashboard-companies h3 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-:global(.dark) .dashboard-companies h3 {
-    color: var(--color-text-main);
-}
-
-/* AVATAR AND TYPOGRAPHY IN TABLES */
-.entity-name {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 500;
-}
-
-.avatar {
-    width: 32px;
-    height: 32px;
-    background: var(--slate-100);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-600);
-    font-weight: 700;
-    font-size: 0.875rem;
-}
-
-:global(.dark) .avatar {
-    background: var(--slate-800);
-    color: var(--primary-400);
-}
-
-.id-cell {
-    color: #666;
-    font-family: monospace;
-}
-
-:global(.dark) .id-cell {
-    color: var(--color-text-muted);
-}
-
-.user-cell {
-    display: flex;
-    flex-direction: column;
-}
-
-.user-cell .name {
-    font-weight: 500;
-}
-
-.user-cell .email {
-    font-size: 0.8125rem;
-    color: #666;
-}
-
-:global(.dark) .user-cell .email {
-    color: var(--color-text-muted);
-}
-
-.role-badge {
-    padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: capitalize;
-}
-
-.role-badge.admin {
-    background: #fee2e2;
-    color: #ef4444;
-}
-
-.role-badge.usuario {
-    background: #dcfce7;
-    color: #10b981;
-}
-
-.btn-sm {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8125rem;
-}
-
-.empty-row td {
-    text-align: center;
-    color: #666;
-    padding: 2rem;
-}
-
-:global(.dark) .empty-row td {
-    color: var(--color-text-muted);
-}
-
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem;
-    color: #666;
-}
-
-:global(.dark) .loading-container {
-    color: var(--color-text-muted);
-}
-
-/* Pagination Styles */
-.pagination-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    margin-top: auto;
-    border-top: 1px solid #e0e0e0;
-}
-
-:global(.dark) .pagination-controls {
-    border-top-color: var(--color-border);
-}
-
-.pagination-info {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #666;
-}
-
-:global(.dark) .pagination-info {
-    color: var(--color-text-muted);
-}
-
-.btn-sm:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.spinner-large {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--slate-200);
-    border-top-color: var(--primary-500);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Form styles inside modals */
-.modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.select-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text-main);
-    font-family: inherit;
-    font-size: 1rem;
-}
-
-.modal-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-end;
-}
-</style>
-
-<style>
-/* UNSCOPED DARK MODE OVERRIDES */
-.dark .legacy-container {
-    background: #1e1e2d !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
-}
-
-.dark .legacy-container h2,
-.dark .legacy-container h3,
-.dark .legacy-container h4,
-.dark .legacy-container .entity-name,
-.dark .legacy-container .user-cell .name {
-    color: #ffffff !important;
-}
-
-.dark table {
-    background: #2a2a3c !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
-}
-
-.dark table th {
-    background: #393952 !important;
-    color: #ffffff !important;
-    border-bottom-color: #4a4a6a !important;
-}
-
-.dark table td {
-    border-bottom-color: #4a4a6a !important;
-}
-
-.dark .tab-btn {
-    color: #a0a0b0 !important;
-}
-
-.dark .tab-btn.activo,
-.dark .tab-btn:hover:not(.activo) {
-    background: #2a2a3c !important;
-    color: #8c9eff !important;
-}
+/* All manual legacy CSS replaced by Tailwind v4 utilities */
 </style>

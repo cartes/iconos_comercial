@@ -1,71 +1,75 @@
 <template>
-    <div class="portal-layout">
+    <div class="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <TopBar />
 
-        <div class="portal-container">
+        <div class="flex-1 flex overflow-hidden">
             <!-- Sidebar: Folders -->
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h2>Carpetas</h2>
-                    <button v-if="auth.user.puedeEliminar" @click="showAddFolder = true" class="icon-btn"
-                        title="Nueva Carpeta">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <aside class="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col py-8 shadow-sm transition-colors duration-300">
+                <div class="px-6 pb-4 flex justify-between items-center">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Carpetas</h2>
+                    <button v-if="auth.user.puedeEliminar" @click="showAddFolder = true" class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Nueva Carpeta">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M12 5v14M5 12h14" />
                         </svg>
                     </button>
                 </div>
 
-                <nav class="folder-list">
-                    <button class="folder-item all" :class="{ active: !selectedFolderId }"
-                        @click="selectedFolderId = null">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="folder-icon">
+                <nav class="flex-1 overflow-y-auto px-3 space-y-0.5 custom-scrollbar">
+                    <button 
+                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
+                        :class="[!selectedFolderId ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
+                        @click="selectedFolderId = null"
+                    >
+                        <svg class="w-5 h-5 shrink-0 transition-colors" :class="[!selectedFolderId ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                         </svg>
-                        <span class="folder-name">Todas las carpetas</span>
-                        <span class="folder-count">{{ icons.length }}</span>
+                        <span class="flex-1 text-left">Todas las carpetas</span>
+                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors" :class="[!selectedFolderId ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
+                            {{ icons.length }}
+                        </span>
                     </button>
 
-                    <div v-for="(folder, index) in folders" :key="folder.id" class="folder-group"
+                    <div v-for="(folder, index) in folders" :key="folder.id" 
+                        class="flex items-center gap-1 group/item transition-all"
                         :draggable="auth.user.puedeEliminar"
                         @dragstart="auth.user.puedeEliminar && onFolderDragStart($event, index)"
                         @dragover.prevent="auth.user.puedeEliminar && onFolderDragOver($event, index)"
                         @dragenter.prevent="auth.user.puedeEliminar && onFolderDragEnter($event, index)"
-                        @drop.prevent="auth.user.puedeEliminar && onFolderDrop($event, index)" @dragend="onDragEnd"
-                        :class="{ 'dragging': dragFolderIndex === index, 'drag-over': dragOverFolderIndex === index }">
-
-                        <div v-if="auth.user.puedeEliminar" class="drag-handle tooltip-action"
-                            title="Arrastrar para ordenar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="9" cy="5" r="1.5" />
-                                <circle cx="15" cy="5" r="1.5" />
-                                <circle cx="9" cy="12" r="1.5" />
-                                <circle cx="15" cy="12" r="1.5" />
-                                <circle cx="9" cy="19" r="1.5" />
-                                <circle cx="15" cy="19" r="1.5" />
+                        @drop.prevent="auth.user.puedeEliminar && onFolderDrop($event, index)" 
+                        @dragend="onDragEnd"
+                        :class="{ 'opacity-50 scale-[0.98]': dragFolderIndex === index, 'border-t-2 border-primary-500': dragOverFolderIndex === index }"
+                    >
+                        <div v-if="auth.user.puedeEliminar" class="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors opacity-0 group-hover/item:opacity-100">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                                <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                                <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
                             </svg>
                         </div>
 
-                        <button class="folder-item" :class="{ active: selectedFolderId === folder.id }"
-                            @click="selectedFolderId = folder.id">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                class="folder-icon">
+                        <button 
+                            class="flex-1 flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all group"
+                            :class="[selectedFolderId === folder.id ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/10 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50']"
+                            @click="selectedFolderId = folder.id"
+                        >
+                            <svg class="w-5 h-5 shrink-0 transition-colors" :class="[selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
-                            <span class="folder-name">{{ folder.nombre }}</span>
-                            <span class="folder-count">{{ iconCountByFolder[folder.id] || 0 }}</span>
+                            <span class="flex-1 text-left truncate">{{ folder.nombre }}</span>
+                            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
+                                {{ iconCountByFolder[folder.id] || 0 }}
+                            </span>
                         </button>
-                        <div class="folder-actions" v-if="auth.user.puedeEliminar">
-                            <button @click="openRenameFolderModal(folder)" class="edit-folder-btn" title="Renombrar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+
+                        <div class="flex gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity pr-2" v-if="auth.user.puedeEliminar">
+                            <button @click="openRenameFolderModal(folder)" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-lg transition-all" title="Renombrar">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                             </button>
-                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click="handleDeleteFolder(folder)"
-                                class="delete-folder-btn" title="Eliminar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path
-                                        d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                            <button v-if="(iconCountByFolder[folder.id] || 0) === 0" @click="handleDeleteFolder(folder)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all" title="Eliminar">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                                 </svg>
                             </button>
                         </div>
@@ -74,88 +78,97 @@
             </aside>
 
             <!-- Main Content: Icons Grid -->
-            <main class="main-content">
-                <header class="content-header">
-                    <div class="company-info">
-                        <span class="label">Empresa</span>
-                        <h1>{{ auth.user?.empresa }}</h1>
+            <main class="flex-1 flex flex-col p-10 overflow-y-auto custom-scrollbar transition-colors">
+                <header class="flex justify-between items-end mb-10 shrink-0">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Mi Empresa</span>
+                        <div class="flex items-center gap-4">
+                            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{{ auth.user?.empresa }}</h1>
+                            <template v-if="selectedFolderName">
+                                <span class="text-slate-300 dark:text-slate-700 text-2xl font-light">/</span>
+                                <span class="px-4 py-1.5 bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-full text-sm font-bold shadow-sm shadow-primary-500/10">{{ selectedFolderName }}</span>
+                            </template>
+                        </div>
                     </div>
 
-                    <div v-if="selectedFolderName" class="folder-breadcrumb">
-                        <span class="separator">/</span>
-                        <span class="folder-tag">{{ selectedFolderName }}</span>
-                    </div>
-
-                    <div class="actions" v-if="auth.user.puedeEliminar">
-                        <BaseButton variant="primary" @click="showUpload = true">
-                            Agregar Icono
-                        </BaseButton>
-                    </div>
+                    <BaseButton v-if="auth.user.puedeEliminar" variant="primary" @click="showUpload = true">
+                        <svg class="w-4.5 h-4.5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        Agregar Icono
+                    </BaseButton>
                 </header>
 
-                <div v-if="loading" class="loading-state">
-                    <span class="spinner"></span>
-                    Cargando iconos...
+                <div v-if="loading" class="flex-1 flex flex-col items-center justify-center p-20 gap-4 text-slate-400">
+                    <div class="w-10 h-10 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+                    <p class="font-medium">Cargando catálogo...</p>
                 </div>
 
-                <div v-else-if="filteredIcons.length === 0" class="empty-state">
-                    <div class="empty-illustration">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <div v-else-if="filteredIcons.length === 0" class="flex-1 flex flex-col items-center justify-center p-20 text-center gap-6 animate-in fade-in zoom-in duration-500">
+                    <div class="w-24 h-24 bg-slate-100 dark:bg-slate-900 rounded-3xl flex items-center justify-center text-slate-300 dark:text-slate-700">
+                        <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="3" ry="3" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <path d="M21 15l-5-5L5 21" />
                         </svg>
                     </div>
-                    <h3>No hay iconos disponibles</h3>
-                    <p>Ponte en contacto con tu administrador para subir iconos.</p>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">No hay iconos disponibles</h3>
+                        <p class="text-slate-500 max-w-xs">Contacta con tu administrador o sube tus propios iconos para comenzar a utilizarlos.</p>
+                    </div>
+                    <BaseButton v-if="auth.user.puedeEliminar" variant="primary" @click="showUpload = true">Subir mi primer icono</BaseButton>
                 </div>
 
-                <div v-else class="icons-grid">
-                    <div v-for="(icon, index) in filteredIcons" :key="icon.id" class="icon-card"
+                <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-6 auto-rows-max animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div v-for="(icon, index) in filteredIcons" :key="icon.id" 
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                         :draggable="auth.user.puedeEliminar"
                         @dragstart="auth.user.puedeEliminar && onIconDragStart($event, index)"
                         @dragover.prevent="auth.user.puedeEliminar && onIconDragOver($event, index)"
                         @dragenter.prevent="auth.user.puedeEliminar && onIconDragEnter($event, index)"
-                        @drop.prevent="auth.user.puedeEliminar && onIconDrop($event, index)" @dragend="onDragEnd"
-                        :class="{ 'dragging': dragIconIndex === index, 'drag-over': dragOverIconIndex === index }"
+                        @drop.prevent="auth.user.puedeEliminar && onIconDrop($event, index)" 
+                        @dragend="onDragEnd"
+                        :class="{ 'opacity-50 scale-95': dragIconIndex === index, 'ring-2 ring-primary-500 ring-inset ring-offset-4 ring-offset-slate-50 dark:ring-offset-slate-950': dragOverIconIndex === index }"
                         @mouseenter="showTooltip(icon, $event)" @mousemove="moveTooltip($event)"
-                        @mouseleave="hideTooltip">
-
-                        <div v-if="auth.user.puedeEliminar" class="icon-drag-handle">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                                <circle cx="9" cy="5" r="1.5" />
-                                <circle cx="15" cy="5" r="1.5" />
-                                <circle cx="9" cy="12" r="1.5" />
-                                <circle cx="15" cy="12" r="1.5" />
-                                <circle cx="9" cy="19" r="1.5" />
-                                <circle cx="15" cy="19" r="1.5" />
+                        @mouseleave="hideTooltip"
+                    >
+                        <!-- Drag Handle -->
+                        <div v-if="auth.user.puedeEliminar" class="absolute top-2 left-2 z-10 p-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                                <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                                <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
                             </svg>
                         </div>
 
-                        <div class="icon-preview" @click="copyUrl(icon.url)">
-                            <img :src="icon.url" :alt="icon.etiqueta" loading="lazy">
-                            <div class="overlay">
-                                <span class="copy-hint">Copiar URL</span>
+                        <!-- Preview -->
+                        <div class="aspect-square p-6 flex items-center justify-center relative cursor-pointer group/preview" @click="copyUrl(icon.url)">
+                            <img :src="icon.url" :alt="icon.etiqueta" class="max-w-full max-h-full object-contain filter group-hover/preview:scale-110 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-primary-600/10 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
+                                <span class="bg-primary-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg translate-y-2 group-hover/preview:translate-y-0 transition-transform">Copiar URL</span>
                             </div>
                         </div>
-                        <div class="icon-info">
-                            <span class="icon-name" :title="icon.etiqueta">{{ icon.etiqueta || '-' }}</span>
-                            <div class="icon-actions">
-                                <span class="ext-tag">{{ icon.extension }}</span>
-                                <button v-if="auth.user.puedeEliminar" class="edit-icon" @click="openRenameModal(icon)"
-                                    title="Editar Etiqueta">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                        <!-- Info -->
+                        <div class="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-2">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate flex-1" :title="icon.etiqueta">{{ icon.etiqueta || 'S/N' }}</span>
+                                <span class="text-[9px] font-black uppercase text-slate-400 bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded shrink-0">{{ icon.extension }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mt-1">
+                                <button v-if="auth.user.puedeEliminar" class="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded transition-all" @click="openRenameModal(icon)" title="Editar Etiqueta">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                                         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                     </svg>
                                 </button>
-                                <button v-if="auth.user.puedeEliminar" @click="handleDeleteIcon(icon)"
-                                    class="delete-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                                <button v-if="auth.user.puedeEliminar" @click="handleDeleteIcon(icon)" class="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded transition-all" title="Eliminar">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                                     </svg>
                                 </button>
+                                <span v-else class="text-[9px] font-bold text-slate-400 uppercase italic">Solo Lectura</span>
                             </div>
                         </div>
                     </div>
@@ -165,63 +178,66 @@
 
         <!-- Modals -->
         <BaseModal :show="showAddFolder" title="Nueva Carpeta" @close="showAddFolder = false">
-            <form @submit.prevent="saveFolder" class="modal-form">
-                <BaseInput label="Nombre de la Carpeta" v-model="folderForm.nombre" placeholder="Ej. Social Media"
-                    required />
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Crear Carpeta</BaseButton>
-                </div>
+            <form id="addFolderFormUser" @submit.prevent="saveFolder" class="flex flex-col gap-4">
+                <BaseInput label="Nombre de la Carpeta" v-model="folderForm.nombre" placeholder="Ej. Social Media" required />
             </form>
+            <template #footer>
+                <BaseButton variant="secondary" @click="showAddFolder = false">Cancelar</BaseButton>
+                <BaseButton form="addFolderFormUser" type="submit" :loading="saving">Crear Carpeta</BaseButton>
+            </template>
         </BaseModal>
 
         <BaseModal :show="showUpload" title="Agregar Icono" @close="showUpload = false">
-            <form @submit.prevent="saveIcon" class="modal-form">
-                <div class="form-group">
-                    <label class="label">Carpeta</label>
-                    <select v-model="iconForm.carpetaId" class="select-input" required>
+            <form id="uploadIconFormUser" @submit.prevent="saveIcon" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Carpeta</label>
+                    <select v-model="iconForm.carpetaId" class="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium" required>
                         <option value="" disabled>Selecciona una carpeta</option>
                         <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.nombre }}</option>
                     </select>
                 </div>
 
-                <BaseInput label="URL de la Imagen" v-model="iconForm.url" placeholder="https://ejemplo.com/icono.png"
-                    required />
-
+                <BaseInput label="URL de la Imagen" v-model="iconForm.url" placeholder="https://ejemplo.com/icono.png" required />
                 <BaseInput label="Etiqueta" v-model="iconForm.nombre" placeholder="Ej. Instagram Logo" />
-
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Agregar Icono</BaseButton>
-                </div>
             </form>
+            <template #footer>
+                <BaseButton variant="secondary" @click="showUpload = false">Cancelar</BaseButton>
+                <BaseButton form="uploadIconFormUser" type="submit" :loading="saving">Agregar Icono</BaseButton>
+            </template>
         </BaseModal>
 
-        <!-- Rename Icon Modal -->
         <BaseModal :show="showRenameModal" title="Editar Etiqueta" @close="showRenameModal = false">
-            <form @submit.prevent="handleRename" class="modal-form">
+            <form id="renameIconFormUser" @submit.prevent="handleRename" class="flex flex-col gap-4">
                 <BaseInput label="Nueva Etiqueta" v-model="renameForm.nombre" required />
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Actualizar</BaseButton>
-                </div>
             </form>
+            <template #footer>
+                <BaseButton variant="secondary" @click="showRenameModal = false">Cancelar</BaseButton>
+                <BaseButton form="renameIconFormUser" type="submit" :loading="saving">Actualizar</BaseButton>
+            </template>
         </BaseModal>
 
-        <!-- Rename Folder Modal -->
         <BaseModal :show="showRenameFolderModal" title="Renombrar Carpeta" @close="showRenameFolderModal = false">
-            <form @submit.prevent="handleRenameFolder" class="modal-form">
+            <form id="renameFolderFormUser" @submit.prevent="handleRenameFolder" class="flex flex-col gap-4">
                 <BaseInput label="Nuevo Nombre" v-model="renameFolderForm.nombre" required />
-                <div class="modal-actions">
-                    <BaseButton type="submit" :loading="saving">Guardar</BaseButton>
-                </div>
             </form>
+            <template #footer>
+                <BaseButton variant="secondary" @click="showRenameFolderModal = false">Cancelar</BaseButton>
+                <BaseButton form="renameFolderFormUser" type="submit" :loading="saving">Guardar</BaseButton>
+            </template>
         </BaseModal>
 
         <!-- Tooltip -->
-        <div v-if="tooltip.show" class="custom-tooltip" :style="tooltipStyle">
+        <div v-if="tooltip.show" class="fixed pointer-events-none bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl z-[9999] backdrop-blur transition-opacity duration-200" :style="tooltipStyle">
             {{ tooltip.text }}
         </div>
 
-        <!-- Toast for copy URL -->
-        <div v-if="toast" class="toast">{{ toast }}</div>
+        <!-- Toast Notification -->
+        <Transition enter-active-class="transform transition ease-out duration-300" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="toast" class="fixed bottom-6 right-6 bg-slate-900 dark:bg-primary-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-[10000] border border-white/10">
+                <svg class="w-5 h-5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" /></svg>
+                <span class="text-sm font-bold">{{ toast }}</span>
+            </div>
+        </Transition>
     </div>
 </template>
 
@@ -264,7 +280,8 @@ const tooltip = reactive({
 
 const tooltipStyle = computed(() => ({
     top: `${tooltip.y + 15}px`,
-    left: `${tooltip.x + 15}px`
+    left: `${tooltip.x + 15}px`,
+    opacity: tooltip.show ? 1 : 0
 }));
 
 const selectedFolderName = computed(() => {
@@ -305,8 +322,7 @@ onMounted(fetchData);
 
 const copyUrl = (url) => {
     navigator.clipboard.writeText(url);
-    toast.value = 'URL copiada al portapapeles';
-    setTimeout(() => { toast.value = null; }, 2000);
+    showToast('URL copiada al portapapeles');
 };
 
 const showTooltip = (icon, e) => {
@@ -335,8 +351,7 @@ const saveFolder = async () => {
         showAddFolder.value = false;
         folderForm.nombre = '';
         fetchData();
-        toast.value = 'Carpeta creada';
-        setTimeout(() => { toast.value = null; }, 2000);
+        showToast('Carpeta creada');
     } else alert(res.error);
     saving.value = false;
 };
@@ -355,8 +370,7 @@ const saveIcon = async () => {
         showUpload.value = false;
         Object.assign(iconForm, { nombre: '', carpetaId: '', url: '' });
         fetchData();
-        toast.value = 'Icono agregado';
-        setTimeout(() => { toast.value = null; }, 2000);
+        showToast('Icono agregado');
     } else alert(res.error);
     saving.value = false;
 };
@@ -377,8 +391,7 @@ const handleRenameFolder = async () => {
     if (res.success) {
         showRenameFolderModal.value = false;
         fetchData();
-        toast.value = 'Carpeta renombrada';
-        setTimeout(() => { toast.value = null; }, 2000);
+        showToast('Carpeta renombrada');
     } else {
         alert(res.error || 'Error al renombrar');
     }
@@ -401,8 +414,7 @@ const handleRename = async () => {
     if (res.success) {
         showRenameModal.value = false;
         fetchData();
-        toast.value = 'Etiqueta actualizada';
-        setTimeout(() => { toast.value = null; }, 2000);
+        showToast('Etiqueta actualizada');
     } else {
         alert(res.error || 'Error al actualizar etiqueta');
     }
@@ -415,8 +427,7 @@ const handleDeleteFolder = async (folder) => {
         if (res.success) {
             if (selectedFolderId.value === folder.id) selectedFolderId.value = null;
             fetchData();
-            toast.value = 'Carpeta eliminada';
-            setTimeout(() => { toast.value = null; }, 2000);
+            showToast('Carpeta eliminada');
         } else {
             alert(res.error || 'Error al eliminar la carpeta');
         }
@@ -428,12 +439,16 @@ const handleDeleteIcon = async (icon) => {
         const res = await apiRequest(`iconos/${icon.id}`, { method: 'DELETE' });
         if (res.success) {
             fetchData();
-            toast.value = 'Icono eliminado';
-            setTimeout(() => { toast.value = null; }, 2000);
+            showToast('Icono eliminado');
         } else {
             alert(res.error || 'Error al eliminar el icono');
         }
     }
+};
+
+const showToast = (msg) => {
+    toast.value = msg;
+    setTimeout(() => { toast.value = null; }, 2000);
 };
 
 // --- DRAG AND DROP LOGIC PARA CARPETAS ---
@@ -448,13 +463,12 @@ const onFolderDragStart = (event, index) => {
 const onFolderDragEnter = (event, index) => {
     dragOverFolderIndex.value = index;
 };
-const onFolderDragOver = (event, index) => { };
+const onFolderDragOver = (_event, _index) => { };
 const onFolderDrop = async (event, dropIndex) => {
     if (dragFolderIndex.value !== null && dragFolderIndex.value !== dropIndex) {
         const movedItem = folders.value.splice(dragFolderIndex.value, 1)[0];
         folders.value.splice(dropIndex, 0, movedItem);
 
-        // Recalcular el orden
         folders.value.forEach((folder, idx) => {
             folder.orden = idx + 1;
         });
@@ -485,7 +499,7 @@ const onIconDragStart = (event, index) => {
 const onIconDragEnter = (event, index) => {
     dragOverIconIndex.value = index;
 };
-const onIconDragOver = (event, index) => { };
+const onIconDragOver = (_event, _index) => { };
 const onIconDrop = async (event, dropIndex) => {
     if (dragIconIndex.value !== null && dragIconIndex.value !== dropIndex) {
 
@@ -529,525 +543,23 @@ const onDragEnd = () => {
 </script>
 
 <style scoped>
-.portal-layout {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: var(--color-bg);
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
 }
-
-.portal-container {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
 }
-
-.sidebar {
-    width: 320px;
-    background: var(--color-surface);
-    border-right: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 0;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
 }
-
-.sidebar-header {
-    padding: 0 1.5rem 1rem;
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
 }
-
-.sidebar-header h2 {
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
 }
-
-.icon-btn {
-    background: none;
-    border: none;
-    color: var(--primary-500);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 8px;
-    display: flex;
-    transition: all 0.2s;
-}
-
-.icon-btn:hover {
-    background: var(--slate-100);
-}
-
-.icon-btn svg {
-    width: 20px;
-    height: 20px;
-}
-
-.folder-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 0.75rem;
-}
-
-.folder-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 0.875rem;
-    border: none;
-    background: none;
-    border-radius: var(--radius-md);
-    color: var(--color-text-main);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-    margin-bottom: 2px;
-}
-
-.folder-name {
-    flex: 1;
-    line-height: 1.4;
-}
-
-.folder-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--slate-400);
-    flex-shrink: 0;
-}
-
-.folder-item:hover {
-    background: var(--slate-100);
-    color: var(--slate-900);
-}
-
-.folder-item:hover svg {
-    color: var(--slate-600);
-}
-
-.folder-item.active {
-    background: rgba(79, 70, 229, 0.08);
-    color: var(--primary-600);
-}
-
-.folder-item.active svg {
-    color: var(--primary-600);
-}
-
-.folder-count {
-    margin-left: auto;
-    background: var(--slate-200);
-    color: var(--slate-600);
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.125rem 0.45rem;
-    border-radius: 9999px;
-    min-width: 20px;
-    text-align: center;
-    line-height: 1.4;
-}
-
-.folder-item.active .folder-count {
-    background: rgba(79, 70, 229, 0.15);
-    color: var(--primary-600);
-}
-
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 2.5rem 3rem;
-}
-
-.content-header {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-}
-
-.company-info .label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-    letter-spacing: 0.05em;
-}
-
-.company-info h1 {
-    font-size: 2rem;
-    color: var(--slate-900);
-    letter-spacing: -0.025em;
-}
-
-@media (prefers-color-scheme: dark) {
-    .company-info h1 {
-        color: white;
-    }
-}
-
-.actions {
-    margin-left: auto;
-}
-
-.folder-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 1.25rem;
-}
-
-.folder-breadcrumb .separator {
-    color: var(--slate-300);
-}
-
-.folder-tag {
-    background: var(--slate-100);
-    padding: 0.25rem 1rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    color: var(--primary-600);
-}
-
-.icons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 2rem;
-}
-
-.icon-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
-    transition: all 0.3s;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    /* relative for icons handle */
-}
-
-.icon-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-400);
-}
-
-.icon-preview {
-    height: 180px;
-    background: var(--slate-50);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    position: relative;
-    cursor: pointer;
-}
-
-@media (prefers-color-scheme: dark) {
-    .icon-preview {
-        background: rgba(255, 255, 255, 0.02);
-    }
-}
-
-.icon-preview img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(79, 70, 229, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.icon-preview:hover .overlay {
-    opacity: 1;
-}
-
-.copy-hint {
-    color: white;
-    font-weight: 700;
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.icon-info {
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.icon-name {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--slate-900);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-@media (prefers-color-scheme: dark) {
-    .icon-name {
-        color: white;
-    }
-}
-
-.ext-tag {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    background: var(--slate-100);
-    padding: 0.125rem 0.375rem;
-    border-radius: 4px;
-    font-weight: 700;
-}
-
-:global(.dark) .ext-tag {
-    background: var(--slate-800);
-}
-
-.icon-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.delete-icon,
-.edit-icon {
-    background: none;
-    border: none;
-    color: var(--slate-400);
-    padding: 0.25rem;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    transition: all 0.2s;
-}
-
-.delete-icon:hover {
-    color: var(--error-500);
-    background: var(--slate-100);
-}
-
-.edit-icon:hover {
-    color: var(--primary-600);
-    background: var(--slate-100);
-}
-
-.delete-icon svg,
-.edit-icon svg {
-    width: 16px;
-    height: 16px;
-}
-
-.toast {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--slate-900);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translate(-50%, 100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-}
-
-.custom-tooltip {
-    position: fixed;
-    background: rgba(0, 0, 0, 0.85);
-    color: white;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    pointer-events: none;
-    z-index: 9999;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    max-width: 250px;
-}
-
-.empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-}
-
-.empty-illustration {
-    width: 64px;
-    height: 64px;
-    color: var(--slate-300);
-    margin-bottom: 1rem;
-}
-
-.empty-illustration svg {
-    width: 100%;
-    height: 100%;
-}
-
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem;
-    gap: 1rem;
-    color: var(--color-text-muted);
-}
-
-.folder-group {
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-    margin-bottom: 2px;
-}
-
-.folder-group .folder-item {
-    margin-bottom: 0;
-}
-
-.folder-group.dragging {
-    opacity: 0.5;
-    background: var(--slate-100);
-    border-radius: var(--radius-md);
-}
-
-.folder-group.drag-over {
-    border-top: 2px solid var(--primary-500);
-    background: rgba(79, 70, 229, 0.05);
-}
-
-.drag-handle {
-    padding: 0.625rem 0.25rem 0.625rem 0.5rem;
-    cursor: grab;
-    color: var(--slate-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-.drag-handle svg {
-    width: 16px;
-    height: 16px;
-}
-
-.drag-handle:hover {
-    color: var(--slate-500);
-}
-
-.folder-actions {
-    display: flex;
-    gap: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.folder-group:hover .folder-actions,
-.folder-actions:focus-within {
-    opacity: 1;
-}
-
-.delete-folder-btn,
-.edit-folder-btn {
-    background: none;
-    border: none;
-    color: var(--slate-400);
-    padding: 0.5rem;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    transition: all 0.2s;
-}
-
-.delete-folder-btn:hover {
-    color: var(--error-500);
-    background: var(--slate-100);
-}
-
-.edit-folder-btn:hover {
-    color: var(--primary-600);
-    background: var(--slate-100);
-}
-
-.delete-folder-btn svg,
-.edit-folder-btn svg {
-    width: 16px;
-    height: 16px;
-}
-
-.icon-card.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-    box-shadow: none;
-}
-
-.icon-card.drag-over {
-    border: 2px dashed var(--primary-500);
-    opacity: 0.8;
-}
-
-.icon-drag-handle {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    z-index: 10;
-    color: var(--slate-400);
-    background: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: grab;
-    box-shadow: var(--shadow-sm);
-    opacity: 0;
-    transition: all 0.2s;
-}
-
-:global(.dark) .icon-drag-handle {
-    background: var(--slate-800);
-    color: var(--slate-300);
-}
-
-.icon-card:hover .icon-drag-handle {
-    opacity: 1;
-}
-
-.icon-drag-handle:active {
-    cursor: grabbing;
-    transform: scale(0.9);
+.dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
 }
 </style>

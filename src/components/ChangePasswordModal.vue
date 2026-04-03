@@ -1,6 +1,6 @@
 <template>
     <BaseModal :show="show" title="Cambiar Contraseña" @close="$emit('close')">
-        <form @submit.prevent="handleSubmit" class="modal-form">
+        <form id="changePasswordForm" @submit.prevent="handleSubmit" class="flex flex-col gap-4">
             <BaseInput label="Contraseña Actual" v-model="form.clave" type="password"
                 placeholder="Ingresa tu contraseña actual" required />
 
@@ -10,15 +10,14 @@
             <BaseInput label="Confirmar Nueva Contraseña" v-model="form.confirmarClave" type="password"
                 placeholder="Repite la nueva contraseña" required />
 
-            <div v-if="error" class="error-message">
+            <div v-if="error" class="text-red-600 font-medium text-sm bg-red-50 dark:bg-red-900/10 p-3 rounded-lg border border-red-200 dark:border-red-900/20 text-center">
                 {{ error }}
             </div>
-
-            <div class="modal-actions">
-                <BaseButton type="button" variant="secondary" @click="$emit('close')">Cancelar</BaseButton>
-                <BaseButton type="submit" :loading="saving">Cambiar Contraseña</BaseButton>
-            </div>
         </form>
+        <template #footer>
+            <BaseButton type="button" variant="secondary" @click="$emit('close')">Cancelar</BaseButton>
+            <BaseButton form="changePasswordForm" type="submit" :loading="saving">Cambiar Contraseña</BaseButton>
+        </template>
     </BaseModal>
 </template>
 
@@ -90,21 +89,5 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.error-message {
-    color: var(--error-600);
-    font-size: 0.875rem;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    background: rgba(239, 68, 68, 0.1);
-    border-radius: var(--radius-md);
-    text-align: center;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
+/* All styles transitioned to Tailwind v4 */
 </style>

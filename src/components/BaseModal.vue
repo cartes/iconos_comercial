@@ -1,23 +1,37 @@
 <template>
     <Teleport to="body">
-        <Transition name="fade">
-            <div v-if="show" class="modal-backdrop" @click.self="$emit('close')">
-                <Transition name="slide-up">
-                    <div v-if="show" class="modal-content">
-                        <header class="modal-header">
-                            <h3>{{ title }}</h3>
-                            <button @click="$emit('close')" class="close-btn">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <Transition
+            enter-active-class="transition-opacity duration-300"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-300"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="show" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 z-[1000]" @click.self="$emit('close')">
+                <Transition
+                    enter-active-class="transition-transform duration-300 cubic-bezier(0.16, 1, 0.3, 1)"
+                    enter-from-class="translate-y-5"
+                    enter-to-class="translate-y-0"
+                    leave-active-class="transition-transform duration-300 cubic-bezier(0.16, 1, 0.3, 1)"
+                    leave-from-class="translate-y-0"
+                    leave-to-class="translate-y-5"
+                >
+                    <div v-if="show" class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+                        <header class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ title }}</h3>
+                            <button @click="$emit('close')" class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 6L6 18M6 6l12 12" />
                                 </svg>
                             </button>
                         </header>
 
-                        <div class="modal-body">
+                        <div class="p-6 overflow-y-auto">
                             <slot></slot>
                         </div>
 
-                        <footer class="modal-footer" v-if="$slots.footer">
+                        <footer class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 flex justify-end gap-3 rounded-b-2xl" v-if="$slots.footer">
                             <slot name="footer"></slot>
                         </footer>
                     </div>
@@ -52,98 +66,5 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: var(--color-surface);
-    width: 100%;
-    max-width: 480px;
-    border-radius: var(--radius-xl);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh;
-}
-
-.modal-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    font-size: 1.125rem;
-    font-weight: 700;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: var(--radius-md);
-    transition: all 0.2s;
-    display: flex;
-}
-
-.close-btn:hover {
-    background: var(--slate-100);
-    color: var(--slate-900);
-}
-
-.modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--color-border);
-    background: var(--slate-50);
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
-}
-
-@media (prefers-color-scheme: dark) {
-    .modal-footer {
-        background: rgba(255, 255, 255, 0.02);
-    }
-}
-
-/* Animations */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
-.slide-up-enter-active,
-.slide-up-leave-active {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.slide-up-enter-from,
-.slide-up-leave-to {
-    transform: translateY(20px);
-}
+/* All styles handled by Tailwind v4 utilities */
 </style>

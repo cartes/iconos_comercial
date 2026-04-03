@@ -1,15 +1,25 @@
 <template>
   <button
-    :class="['base-button', variant, { loading }]"
+    v-bind="$attrs"
+    :class="[
+      'relative inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg transition-all duration-200 gap-2 overflow-hidden',
+      variantClasses[variant],
+      { 'opacity-60 cursor-not-allowed transform-none': disabled || loading }
+    ]"
     :disabled="disabled || loading"
-    @click="$emit('click', $event)"
   >
-    <span v-if="loading" class="spinner"></span>
-    <span :class="{ 'text-hidden': loading }">
+    <span v-if="loading" :class="['w-5 h-5 border-2 rounded-full animate-spin', spinnerClasses[variant]]"></span>
+    <span :class="{ 'opacity-0': loading }">
         <slot></slot>
     </span>
   </button>
 </template>
+
+<script>
+export default {
+  inheritAttrs: false
+}
+</script>
 
 <script setup>
 defineProps({
@@ -20,73 +30,19 @@ defineProps({
   loading: Boolean,
   disabled: Boolean,
 });
-defineEmits(['click']);
+
+
+const variantClasses = {
+  primary: 'bg-grad-primary text-white shadow-md hover:-translate-y-0.5 hover:shadow-xl hover:brightness-110 disabled:hover:translate-y-0',
+  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'
+};
+
+const spinnerClasses = {
+  primary: 'border-white/30 border-t-white',
+  secondary: 'border-slate-900/10 border-t-primary-600 dark:border-white/10 dark:border-t-white'
+};
 </script>
 
 <style scoped>
-.base-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  gap: 0.5rem;
-}
-
-.primary {
-  background: var(--grad-primary);
-  color: white;
-  box-shadow: var(--shadow-md);
-}
-
-.primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-premium);
-  filter: brightness(1.1);
-}
-
-.secondary {
-  background: var(--slate-100);
-  color: var(--slate-900);
-}
-
-.secondary:hover:not(:disabled) {
-  background: var(--slate-200);
-}
-
-.base-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.spinner {
-  position: absolute;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 0.8s linear infinite;
-}
-
-.secondary .spinner {
-  border-top-color: var(--primary-600);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-.text-hidden {
-  opacity: 0;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+/* No additional styles needed, all handled by Tailwind utilities */
 </style>

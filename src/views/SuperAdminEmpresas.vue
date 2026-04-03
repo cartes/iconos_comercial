@@ -1,37 +1,38 @@
 <template>
-  <div class="legacy-body">
-    <div class="legacy-container">
-      <header class="legacy-header">
-        <h1>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+  <div class="min-h-screen bg-grad-primary p-5 flex justify-center items-start">
+    <div class="max-w-7xl w-full bg-white dark:bg-[#1e1e2d] rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[calc(100vh-40px)] transition-colors duration-300">
+      <!-- Header -->
+      <header class="bg-grad-primary text-white p-5 md:p-7 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0 transition-all">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           Super Admin
-          <span class="super-badge">Panel Global</span>
+          <span class="text-[11px] font-bold bg-white/25 border border-white/40 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Panel Global
+          </span>
         </h1>
-        <div class="legacy-header-actions">
-          <button @click="toggleTheme" class="icon-btn theme-btn header-btn-icon"
+        <div class="flex items-center gap-4">
+          <button @click="toggleTheme" class="p-2 hover:bg-white/15 rounded-lg transition-colors"
             :title="isDark ? 'Modo Claro' : 'Modo Oscuro'">
-            <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <circle cx="12" cy="12" r="5" />
-              <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+            <svg v-if="isDark" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
               <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
               <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
               <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
             </svg>
-            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
             </svg>
           </button>
-          <span class="user-info-text">Hola, {{ authStore.user?.email || 'Super Admin' }}</span>
-          <button class="btn btn-cambiar-clave header-btn-icon" @click="showCambiarClave = true" title="Cambiar contraseña">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
+          <span class="hidden sm:inline font-medium">Hola, {{ authStore.user?.email || 'Super Admin' }}</span>
+          <button class="p-2 hover:bg-white/15 rounded-lg transition-colors" @click="showCambiarClave = true" title="Cambiar contraseña">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
             </svg>
           </button>
-          <button class="btn btn-primary logout-btn-legacy" @click="logout" title="Cerrar Sesión">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <button class="bg-white text-primary-600 px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2" @click="logout" title="Cerrar Sesión">
+            <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
             </svg>
             Salir
@@ -39,268 +40,155 @@
         </div>
       </header>
 
-      <main class="legacy-content">
+      <main class="p-5 md:p-8 flex-grow flex flex-col gap-8">
         <!-- Registrar nueva agencia -->
-        <div class="section-header">
-          <h2>Registrar Nueva Agencia</h2>
-        </div>
-        <div class="form-card">
-          <form @submit.prevent="registrarTenant" class="register-form">
-            <div class="form-group">
-              <label class="label">Nombre Comercial *</label>
-              <input
-                v-model="nuevoTenant.nombre"
-                type="text"
-                class="form-input"
-                placeholder="Ej: Content 360"
-                required
-                :disabled="cargando"
-              >
-            </div>
-            <div class="form-group">
-              <label class="label">Dominio *</label>
-              <input
-                v-model="nuevoTenant.dominio"
-                type="text"
-                class="form-input"
-                placeholder="content360.com"
-                required
-                :disabled="cargando"
-              >
-            </div>
-            <div class="form-group">
-              <label class="label">Email</label>
-              <input
-                v-model="nuevoTenant.email"
-                type="email"
-                class="form-input"
-                placeholder="contacto@agencia.com"
-                :disabled="cargando"
-              >
-            </div>
-            <div class="form-group">
-              <label class="label">Teléfono</label>
-              <input
-                v-model="nuevoTenant.telefono"
-                type="tel"
-                class="form-input"
-                placeholder="+56 9 1234 5678"
-                :disabled="cargando"
-              >
-            </div>
-            <div class="form-group">
-              <label class="label">Dirección</label>
-              <input
-                v-model="nuevoTenant.direccion"
-                type="text"
-                class="form-input"
-                placeholder="Calle Principal 123, Santiago"
-                :disabled="cargando"
-              >
-            </div>
-            <div class="form-group form-group-action">
-              <button type="submit" class="btn btn-success" :disabled="cargando">
-                <span v-if="cargando" class="spinner-small"></span>
-                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Registrar Agencia
-              </button>
-            </div>
-          </form>
-        </div>
+        <section>
+          <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Registrar Nueva Agencia</h2>
+          <div class="bg-slate-50 dark:bg-slate-800/50 p-6 border border-slate-200 dark:border-slate-800 rounded-xl">
+            <form @submit.prevent="registrarTenant" class="flex flex-wrap items-end gap-4">
+              <div class="flex-1 min-w-[200px] flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400">Nombre Comercial *</label>
+                <input v-model="nuevoTenant.nombre" type="text" placeholder="Ej: Content 360" required :disabled="cargando"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm transition-all focus:ring-2 focus:ring-primary-500/15 focus:border-primary-500 outline-none disabled:opacity-60" />
+              </div>
+              <div class="flex-1 min-w-[200px] flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400">Dominio *</label>
+                <input v-model="nuevoTenant.dominio" type="text" placeholder="content360.com" required :disabled="cargando"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm transition-all focus:ring-2 focus:ring-primary-500/15 focus:border-primary-500 outline-none disabled:opacity-60" />
+              </div>
+              <div class="flex-1 min-w-[200px] flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400">Email</label>
+                <input v-model="nuevoTenant.email" type="email" placeholder="contacto@agencia.com" :disabled="cargando"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm transition-all focus:ring-2 focus:ring-primary-500/15 focus:border-primary-500 outline-none disabled:opacity-60" />
+              </div>
+              <div class="shrink-0">
+                <button type="submit" class="bg-success-500 hover:bg-green-600 text-white font-bold py-2.5 px-6 rounded-lg text-sm shadow-md transition-all active:scale-95 disabled:opacity-60 flex items-center gap-2" :disabled="cargando">
+                  <span v-if="cargando" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Registrar Agencia
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
 
         <!-- Listado de tenants -->
-        <div class="section-header" style="margin-top: 30px;">
-          <h2>Agencias Registradas</h2>
-          <button @click="fetchTenants" class="btn btn-outline" :disabled="cargando">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-              <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
-              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-            </svg>
-            Actualizar
-          </button>
-        </div>
+        <section class="flex-grow flex flex-col gap-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Agencias Registradas</h2>
+            <button @click="fetchTenants" class="text-primary-500 dark:text-primary-400 border border-current px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-primary-500 hover:text-white transition-all disabled:opacity-60" :disabled="cargando">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+              </svg>
+              Actualizar
+            </button>
+          </div>
 
-        <div v-if="cargando" class="loading-container">
-          <span class="spinner-large"></span>
-          <p>Cargando agencias...</p>
-        </div>
+          <div v-if="cargando" class="flex-grow flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
+            <div class="w-10 h-10 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+            <p>Cargando agencias...</p>
+          </div>
 
-        <div v-else class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Dominio</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Estado</th>
-                <th style="text-align: right;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="tenants.length === 0">
-                <td colspan="5" class="empty-row">No hay agencias registradas.</td>
-              </tr>
-              <tr v-for="tenant in tenants" :key="tenant.id">
-                <td>
-                  <div class="entity-name">
-                    <span class="avatar">{{ (tenant.nombre || tenant.id)?.charAt(0)?.toUpperCase() || '?' }}</span>
-                    {{ tenant.nombre || '(sin nombre)' }}
-                  </div>
-                </td>
-                <td class="id-cell">{{ tenant.dominio || '—' }}</td>
-                <td class="id-cell">{{ tenant.email || '—' }}</td>
-                <td class="id-cell">{{ tenant.telefono || '—' }}</td>
-                <td>
-                  <span :class="['badge', tenant.estado === 'suspendido' ? 'badge-suspendido' : 'badge-activo']">
-                    {{ tenant.estado || 'activo' }}
-                  </span>
-                </td>
-                <td style="text-align: right;">
-                  <div class="actions-group">
-                    <button
-                      @click="editarTenant(tenant)"
-                      class="btn btn-outline btn-sm"
-                      :disabled="cargando"
-                      title="Editar nombre"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                    <button
-                      v-if="tenant.estado !== 'suspendido'"
-                      @click="suspenderTenant(tenant.id)"
-                      class="btn btn-delete btn-sm"
-                      :disabled="cargando"
-                      title="Suspender agencia"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                        <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                      </svg>
-                    </button>
-                    <button
-                      v-else
-                      @click="activarTenant(tenant.id)"
-                      class="btn btn-activar btn-sm"
-                      :disabled="cargando"
-                      title="Reactivar agencia"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </button>
-                    <button
-                      @click="borrarTenant(tenant.id)"
-                      class="btn btn-delete btn-sm"
-                      :disabled="cargando"
-                      title="Eliminar agencia"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <div v-else class="overflow-x-auto rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <table class="w-full border-collapse bg-white dark:bg-slate-900 transition-colors">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/80 text-left border-b border-slate-200 dark:border-slate-800">
+                  <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Nombre</th>
+                  <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Dominio</th>
+                  <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Email</th>
+                  <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Estado</th>
+                  <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr v-if="tenants.length === 0">
+                  <td colspan="5" class="p-12 text-center text-slate-400 italic">No hay agencias registradas.</td>
+                </tr>
+                <tr v-for="tenant in tenants" :key="tenant.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                  <td class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 bg-grad-primary rounded-lg flex items-center justify-center text-white font-bold text-sm uppercase shrink-0">
+                        {{ (tenant.nombre || tenant.id)?.charAt(0)?.toUpperCase() || '?' }}
+                      </div>
+                      <span class="font-semibold text-slate-700 dark:text-slate-200">{{ tenant.nombre || '(sin nombre)' }}</span>
+                    </div>
+                  </td>
+                  <td class="p-4 text-sm font-mono text-slate-500 dark:text-slate-400">{{ tenant.dominio || '—' }}</td>
+                  <td class="p-4 text-sm font-mono text-slate-500 dark:text-slate-400">{{ tenant.email || '—' }}</td>
+                  <td class="p-4">
+                    <span :class="[
+                      'text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-tight',
+                      tenant.estado === 'suspendido' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    ]">
+                      {{ tenant.estado || 'activo' }}
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+                      <button @click="editarTenant(tenant)" class="p-1.5 text-primary-500 border border-primary-500/20 hover:bg-primary-500 hover:text-white rounded-md transition-all" title="Editar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                      </button>
+                      <button v-if="tenant.estado !== 'suspendido'" @click="suspenderTenant(tenant.id)" class="p-1.5 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white rounded-md transition-all" title="Suspender">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                      </button>
+                      <button v-else @click="activarTenant(tenant.id)" class="p-1.5 text-green-500 border border-green-500/20 hover:bg-green-500 hover:text-white rounded-md transition-all" title="Reactivar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </button>
+                      <button @click="borrarTenant(tenant.id)" class="p-1.5 text-red-600 border border-red-600/20 hover:bg-red-600 hover:text-white rounded-md transition-all" title="Eliminar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </main>
     </div>
 
-    <!-- Modal Cambiar Contraseña -->
-    <Transition name="modal">
-      <div v-if="showCambiarClave" class="modal-overlay" @click.self="cerrarCambiarClave">
-        <div class="modal-box">
-          <div class="modal-header">
-            <h3>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
-              Cambiar Contraseña
-            </h3>
-            <button class="modal-close" @click="cerrarCambiarClave">✕</button>
-          </div>
-          <form @submit.prevent="cambiarClave" class="modal-form">
-            <div class="form-group">
-              <label class="label">Contraseña actual</label>
-              <input v-model="claveForm.actual" type="password" class="form-input" placeholder="••••••••" required :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Nueva contraseña</label>
-              <input v-model="claveForm.nueva" type="password" class="form-input" placeholder="Mínimo 8 caracteres" required minlength="8" :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Confirmar nueva contraseña</label>
-              <input v-model="claveForm.confirmar" type="password" class="form-input" placeholder="Repite la nueva contraseña" required :disabled="cargando">
-            </div>
-            <p v-if="claveError" class="clave-error">{{ claveError }}</p>
-            <p v-if="claveExito" class="clave-exito">{{ claveExito }}</p>
-            <div class="modal-actions">
-              <button type="button" class="btn btn-outline" @click="cerrarCambiarClave" :disabled="cargando">Cancelar</button>
-              <button type="submit" class="btn btn-success" :disabled="cargando">
-                <span v-if="cargando" class="spinner-small"></span>
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Transition>
+    <!-- Modals -->
+    <BaseModal :show="showCambiarClave" title="Cambiar Contraseña" @close="cerrarCambiarClave">
+      <form id="cambiarClaveForm" @submit.prevent="cambiarClave" class="flex flex-col gap-4">
+        <BaseInput label="Contraseña actual" v-model="claveForm.actual" type="password" required :disabled="cargando" />
+        <BaseInput label="Nueva contraseña" v-model="claveForm.nueva" type="password" required minlength="8" :disabled="cargando" />
+        <BaseInput label="Confirmar nueva contraseña" v-model="claveForm.confirmar" type="password" required :disabled="cargando" />
+        
+        <div v-if="claveError" class="p-3 bg-red-100 text-red-700 text-sm rounded-lg border border-red-200">{{ claveError }}</div>
+        <div v-if="claveExito" class="p-3 bg-green-100 text-green-700 text-sm rounded-lg border border-green-200">{{ claveExito }}</div>
+      </form>
+      <template #footer>
+        <BaseButton variant="secondary" @click="cerrarCambiarClave" :disabled="cargando">Cancelar</BaseButton>
+        <BaseButton form="cambiarClaveForm" type="submit" :loading="cargando">Guardar cambios</BaseButton>
+      </template>
+    </BaseModal>
 
-    <!-- Modal Editar Tenant -->
-    <Transition name="modal">
-      <div v-if="showEditarTenant" class="modal-overlay" @click.self="cerrarEditarTenant">
-        <div class="modal-box">
-          <div class="modal-header">
-            <h3>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-              Editar Agencia
-            </h3>
-            <button class="modal-close" @click="cerrarEditarTenant">✕</button>
-          </div>
-          <form @submit.prevent="guardarEdicionTenant" class="modal-form">
-            <div class="form-group">
-              <label class="label">Nombre Comercial</label>
-              <input v-model="editForm.nombre" type="text" class="form-input" placeholder="Nombre de la agencia" required :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Dominio</label>
-              <input v-model="editForm.dominio" type="text" class="form-input" placeholder="agencia.com" :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Email</label>
-              <input v-model="editForm.email" type="email" class="form-input" placeholder="contacto@agencia.com" :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Teléfono</label>
-              <input v-model="editForm.telefono" type="tel" class="form-input" placeholder="+56 9 1234 5678" :disabled="cargando">
-            </div>
-            <div class="form-group">
-              <label class="label">Dirección</label>
-              <input v-model="editForm.direccion" type="text" class="form-input" placeholder="Calle Principal 123, Santiago" :disabled="cargando">
-            </div>
-            <p v-if="editError" class="clave-error">{{ editError }}</p>
-            <p v-if="editExito" class="clave-exito">{{ editExito }}</p>
-            <div class="modal-actions">
-              <button type="button" class="btn btn-outline" @click="cerrarEditarTenant" :disabled="cargando">Cancelar</button>
-              <button type="submit" class="btn btn-success" :disabled="cargando">
-                <span v-if="cargando" class="spinner-small"></span>
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Transition>
+    <BaseModal :show="showEditarTenant" title="Editar Agencia" @close="cerrarEditarTenant">
+      <form id="editarTenantForm" @submit.prevent="guardarEdicionTenant" class="flex flex-col gap-4">
+        <BaseInput label="Nombre Comercial" v-model="editForm.nombre" required :disabled="cargando" />
+        <BaseInput label="Dominio" v-model="editForm.dominio" :disabled="cargando" />
+        <BaseInput label="Email" v-model="editForm.email" type="email" :disabled="cargando" />
+        <BaseInput label="Teléfono" v-model="editForm.telefono" type="tel" :disabled="cargando" />
+        <BaseInput label="Dirección" v-model="editForm.direccion" :disabled="cargando" />
+        
+        <div v-if="editError" class="p-3 bg-red-100 text-red-700 text-sm rounded-lg border border-red-200">{{ editError }}</div>
+        <div v-if="editExito" class="p-3 bg-green-100 text-green-700 text-sm rounded-lg border border-green-200">{{ editExito }}</div>
+      </form>
+      <template #footer>
+        <BaseButton variant="secondary" @click="cerrarEditarTenant" :disabled="cargando">Cancelar</BaseButton>
+        <BaseButton form="editarTenantForm" type="submit" :loading="cargando">Guardar cambios</BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -309,6 +197,9 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { apiRequest } from '@/api/service';
 import { useAuthStore } from '@/stores/auth';
+import BaseModal from '@/components/BaseModal.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import BaseButton from '@/components/BaseButton.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -543,649 +434,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.legacy-body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.legacy-container {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 40px);
-}
-
-:global(.dark) .legacy-container {
-  background: #1e1e2d !important;
-}
-
-.legacy-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.legacy-header h1 {
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  color: white;
-}
-
-.super-badge {
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 3px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.legacy-header-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.user-info-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.header-btn-icon {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.header-btn-icon:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.btn-primary.logout-btn-legacy {
-  background: #fff;
-  color: #667eea;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-primary.logout-btn-legacy:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.legacy-content {
-  padding: 30px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.section-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
-
-:global(.dark) .section-header h2 {
-  color: #fff;
-}
-
-.form-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e0e0e0;
-}
-
-:global(.dark) .form-card {
-  background: #2a2a3e;
-  border-color: #3a3a5c;
-}
-
-.register-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-end;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 180px;
-}
-
-.form-group-action {
-  flex: 0 0 auto;
-}
-
-.label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #555;
-}
-
-:global(.dark) .label {
-  color: #ccc;
-}
-
-.form-input {
-  padding: 10px 14px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #333;
-  background: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-}
-
-.form-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-:global(.dark) .form-input {
-  background: #1e1e2d;
-  border-color: #3a3a5c;
-  color: #fff;
-}
-
-.input-with-suffix {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input-with-suffix:focus-within {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-}
-
-.input-with-suffix .form-input {
-  border: none;
-  border-radius: 0;
-  flex: 1;
-  box-shadow: none;
-}
-
-.input-with-suffix .form-input:focus {
-  box-shadow: none;
-}
-
-:global(.dark) .input-with-suffix {
-  background: #1e1e2d;
-  border-color: #3a3a5c;
-}
-
-.input-suffix {
-  padding: 10px 12px;
-  background: #f0f0f0;
-  color: #777;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-:global(.dark) .input-suffix {
-  background: #2a2a3e;
-  color: #999;
-}
-
-/* BUTTONS */
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.btn-success {
-  background: #28a745;
-  color: white;
-}
-
-.btn-success:hover:not(:disabled) {
-  background: #218838;
-  transform: translateY(-1px);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #667eea;
-  border: 1.5px solid #667eea;
-}
-
-.btn-outline:hover:not(:disabled) {
-  background: #667eea;
-  color: white;
-}
-
-:global(.dark) .btn-outline {
-  color: #a78bfa;
-  border-color: #a78bfa;
-}
-
-:global(.dark) .btn-outline:hover:not(:disabled) {
-  background: #a78bfa;
-  color: #1e1e2d;
-}
-
-.btn-activar {
-  background-color: transparent;
-  color: #28a745;
-  border: 1px solid #28a745;
-  padding: 6px 12px;
-  font-size: 13px;
-}
-
-.btn-activar:hover:not(:disabled) {
-  background-color: #28a745;
-  color: white;
-}
-
-.actions-group {
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.btn-delete {
-  background-color: transparent;
-  color: #ef4444;
-  border: 1px solid #ef4444;
-  padding: 6px 12px;
-  font-size: 13px;
-}
-
-.btn-delete:hover:not(:disabled) {
-  background-color: #ef4444;
-  color: white;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-}
-
-/* TABLE */
-.table-responsive {
-  overflow-x: auto;
-  border-radius: 10px;
-  flex-grow: 1;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-}
-
-:global(.dark) .data-table {
-  background: #2a2a3e;
-}
-
-.data-table th {
-  padding: 14px 16px;
-  text-align: left;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #555;
-  background: #f8f9fa;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-:global(.dark) .data-table th {
-  background: #1e1e2d;
-  color: #aaa;
-  border-bottom-color: #3a3a5c;
-}
-
-.data-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #e8e8e8;
-  vertical-align: middle;
-  color: #333;
-}
-
-:global(.dark) .data-table td {
-  border-bottom-color: #3a3a5c;
-  color: #ddd;
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
-}
-
-.data-table tbody tr:hover td {
-  background: #f9f9ff;
-}
-
-:global(.dark) .data-table tbody tr:hover td {
-  background: #252538;
-}
-
-.entity-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-
-.avatar {
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
-.id-cell {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
-  color: #666;
-}
-
-:global(.dark) .id-cell {
-  color: #aaa;
-}
-
-.badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.badge-activo {
-  background: #d4edda;
-  color: #155724;
-}
-
-.badge-suspendido {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.empty-row {
-  text-align: center;
-  padding: 40px !important;
-  color: #999;
-  font-style: italic;
-}
-
-/* LOADING */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px;
-  color: #999;
-  gap: 12px;
-}
-
-.spinner-large {
-  display: inline-block;
-  width: 36px;
-  height: 36px;
-  border: 4px solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.spinner-small {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .legacy-header {
-    flex-direction: column;
-    gap: 14px;
-    align-items: flex-start;
-  }
-
-  .legacy-content {
-    padding: 16px;
-  }
-
-  .register-form {
-    flex-direction: column;
-  }
-
-  .form-group-action {
-    width: 100%;
-  }
-
-  .form-group-action .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .user-info-text {
-    display: none;
-  }
-}
-
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-box {
-  background: white;
-  border-radius: 14px;
-  padding: 28px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark) .modal-box {
-  background: #1e1e2d;
-  color: #fff;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 22px;
-}
-
-.modal-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-}
-
-:global(.dark) .modal-header h3 {
-  color: #fff;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #999;
-  line-height: 1;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.modal-close:hover {
-  background: #f0f0f0;
-  color: #333;
-}
-
-:global(.dark) .modal-close:hover {
-  background: #2a2a3e;
-  color: #fff;
-}
-
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 6px;
-}
-
-.clave-error {
-  color: #dc3545;
-  font-size: 13px;
-  margin: 0;
-  background: #fff5f5;
-  border: 1px solid #f5c6cb;
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-
-.clave-exito {
-  color: #155724;
-  font-size: 13px;
-  margin: 0;
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-
-.btn-cambiar-clave {
-  color: white;
-}
-
-/* Transitions */
-.modal-enter-active, .modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-from, .modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-box, .modal-leave-active .modal-box {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-box {
-  transform: scale(0.95) translateY(-10px);
-}
-
-.modal-leave-to .modal-box {
-  transform: scale(0.95) translateY(-10px);
-}
+/* All manual CSS replaced by Tailwind v4 utilities */
 </style>

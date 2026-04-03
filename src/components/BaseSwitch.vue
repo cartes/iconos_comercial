@@ -1,8 +1,13 @@
 <template>
-    <label class="base-switch" :class="{ 'is-disabled': disabled }">
-        <input type="checkbox" :checked="modelValue" :disabled="disabled"
-            @change="$emit('update:modelValue', $event.target.checked)" />
-        <span class="slider"></span>
+    <label class="relative inline-block w-11 h-6 flex-shrink-0 cursor-pointer transition-opacity duration-200" :class="{ 'opacity-60 cursor-not-allowed': disabled }">
+        <input
+            type="checkbox"
+            class="sr-only peer"
+            :checked="modelValue"
+            :disabled="disabled"
+            @change="$emit('update:modelValue', $event.target.checked)"
+        />
+        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-primary-600 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all after:duration-300 after:shadow-sm peer-checked:after:translate-x-[20px]"></div>
     </label>
 </template>
 
@@ -22,61 +27,5 @@ defineEmits(['update:modelValue']);
 </script>
 
 <style scoped>
-.base-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.base-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--slate-200);
-    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 24px;
-}
-
-@media (prefers-color-scheme: dark) {
-    .slider {
-        background-color: var(--slate-700);
-    }
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-input:checked+.slider {
-    background-color: var(--primary-600);
-}
-
-input:checked+.slider:before {
-    transform: translateX(20px);
-}
-
-.is-disabled .slider {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+/* All styles handled by Tailwind v4 utilities */
 </style>

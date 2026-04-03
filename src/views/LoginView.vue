@@ -1,21 +1,25 @@
 <template>
-    <div class="login-page">
-        <div class="glass-card">
-            <div class="logo-section">
-                <div class="logo-orb">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="min-h-screen flex items-center justify-center bg-grad-dark p-6">
+        <div class="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-10 shadow-2xl">
+            <div class="text-center mb-10">
+                <div class="w-16 h-16 bg-grad-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                 </div>
-                <h1>{{ needsBootstrap ? 'Configuración Inicial' : 'Bienvenido' }}</h1>
-                <p>{{ needsBootstrap ? 'Configura el primer administrador' : 'Gestiona tus activos digitales' }}</p>
+                <h1 class="text-3xl font-bold text-white mb-2">
+                    {{ needsBootstrap ? 'Configuración Inicial' : 'Bienvenido' }}
+                </h1>
+                <p class="text-slate-400 text-sm">
+                    {{ needsBootstrap ? 'Configura el primer administrador' : 'Gestiona tus activos digitales' }}
+                </p>
             </div>
 
-            <div v-if="error" class="alert error-alert">
+            <div v-if="error" class="bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg p-3.5 mb-6 text-sm text-center">
                 {{ error }}
             </div>
 
-            <form @submit.prevent="handleSubmit" class="login-form">
+            <form @submit.prevent="handleSubmit" class="flex flex-col">
                 <template v-if="needsBootstrap">
                     <BaseInput label="Nombre Completo" v-model="form.nombre" placeholder="Juan Pérez" required />
                 </template>
@@ -31,7 +35,7 @@
                         :error="claveMismatched ? 'Las contraseñas no coinciden' : ''" />
                 </template>
 
-                <BaseButton type="submit" class="submit-btn" :loading="loading">
+                <BaseButton type="submit" class="w-full mt-4" :loading="loading">
                     {{ needsBootstrap ? 'Crear Administrador' : 'Iniciar Sesión' }}
                 </BaseButton>
             </form>
@@ -97,7 +101,10 @@ const handleSubmit = async () => {
         } else {
             const res = await authStore.login(form.email, form.clave);
             if (res.success) {
-                if (authStore.user.rol === 'admin') {
+                const rol = authStore.user.rol;
+                if (rol === 'super-admin') {
+                    router.push('/admin/empresas');
+                } else if (rol === 'admin') {
                     router.push('/admin');
                 } else {
                     router.push('/portal');
@@ -106,7 +113,7 @@ const handleSubmit = async () => {
                 error.value = res.error;
             }
         }
-    } catch (e) {
+    } catch {
         error.value = 'Error de conexión';
     } finally {
         loading.value = false;
@@ -115,82 +122,5 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.login-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--grad-dark);
-    padding: 1.5rem;
-}
-
-.glass-card {
-    width: 100%;
-    max-width: 440px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-xl);
-    padding: 3rem 2.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-.logo-section {
-    text-align: center;
-    margin-bottom: 2.5rem;
-}
-
-.logo-orb {
-    width: 64px;
-    height: 64px;
-    background: var(--grad-primary);
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-}
-
-.logo-orb .icon {
-    width: 32px;
-    height: 32px;
-}
-
-h1 {
-    font-size: 1.875rem;
-    color: white;
-    margin-bottom: 0.5rem;
-}
-
-p {
-    color: var(--slate-400);
-    font-size: 0.9375rem;
-}
-
-.login-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.submit-btn {
-    margin-top: 1rem;
-    width: 100%;
-}
-
-.alert {
-    padding: 0.875rem 1rem;
-    border-radius: var(--radius-md);
-    margin-bottom: 1.5rem;
-    font-size: 0.875rem;
-    text-align: center;
-}
-
-.error-alert {
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-}
+/* All styles transitioned to Tailwind v4 */
 </style>
