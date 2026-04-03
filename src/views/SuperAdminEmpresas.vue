@@ -47,24 +47,54 @@
         <div class="form-card">
           <form @submit.prevent="registrarTenant" class="register-form">
             <div class="form-group">
-              <label class="label">Nombre Comercial</label>
+              <label class="label">Nombre Comercial *</label>
               <input
                 v-model="nuevoTenant.nombre"
                 type="text"
                 class="form-input"
-                placeholder="Ej: Agencia Creativa"
+                placeholder="Ej: Content 360"
                 required
                 :disabled="cargando"
               >
             </div>
             <div class="form-group">
-              <label class="label">Dominio</label>
+              <label class="label">Dominio *</label>
               <input
                 v-model="nuevoTenant.dominio"
                 type="text"
                 class="form-input"
-                placeholder="agencia.com"
+                placeholder="content360.com"
                 required
+                :disabled="cargando"
+              >
+            </div>
+            <div class="form-group">
+              <label class="label">Email</label>
+              <input
+                v-model="nuevoTenant.email"
+                type="email"
+                class="form-input"
+                placeholder="contacto@agencia.com"
+                :disabled="cargando"
+              >
+            </div>
+            <div class="form-group">
+              <label class="label">Teléfono</label>
+              <input
+                v-model="nuevoTenant.telefono"
+                type="tel"
+                class="form-input"
+                placeholder="+56 9 1234 5678"
+                :disabled="cargando"
+              >
+            </div>
+            <div class="form-group">
+              <label class="label">Dirección</label>
+              <input
+                v-model="nuevoTenant.direccion"
+                type="text"
+                class="form-input"
+                placeholder="Calle Principal 123, Santiago"
                 :disabled="cargando"
               >
             </div>
@@ -102,8 +132,9 @@
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>ID / Slug</th>
                 <th>Dominio</th>
+                <th>Email</th>
+                <th>Teléfono</th>
                 <th>Estado</th>
                 <th style="text-align: right;">Acciones</th>
               </tr>
@@ -119,8 +150,9 @@
                     {{ tenant.nombre || '(sin nombre)' }}
                   </div>
                 </td>
-                <td class="id-cell">{{ tenant.id }}</td>
                 <td class="id-cell">{{ tenant.dominio || '—' }}</td>
+                <td class="id-cell">{{ tenant.email || '—' }}</td>
+                <td class="id-cell">{{ tenant.telefono || '—' }}</td>
                 <td>
                   <span :class="['badge', tenant.estado === 'suspendido' ? 'badge-suspendido' : 'badge-activo']">
                     {{ tenant.estado || 'activo' }}
@@ -240,6 +272,22 @@
               <label class="label">Nombre Comercial</label>
               <input v-model="editForm.nombre" type="text" class="form-input" placeholder="Nombre de la agencia" required :disabled="cargando">
             </div>
+            <div class="form-group">
+              <label class="label">Dominio</label>
+              <input v-model="editForm.dominio" type="text" class="form-input" placeholder="agencia.com" :disabled="cargando">
+            </div>
+            <div class="form-group">
+              <label class="label">Email</label>
+              <input v-model="editForm.email" type="email" class="form-input" placeholder="contacto@agencia.com" :disabled="cargando">
+            </div>
+            <div class="form-group">
+              <label class="label">Teléfono</label>
+              <input v-model="editForm.telefono" type="tel" class="form-input" placeholder="+56 9 1234 5678" :disabled="cargando">
+            </div>
+            <div class="form-group">
+              <label class="label">Dirección</label>
+              <input v-model="editForm.direccion" type="text" class="form-input" placeholder="Calle Principal 123, Santiago" :disabled="cargando">
+            </div>
             <p v-if="editError" class="clave-error">{{ editError }}</p>
             <p v-if="editExito" class="clave-exito">{{ editExito }}</p>
             <div class="modal-actions">
@@ -267,7 +315,7 @@ const authStore = useAuthStore();
 
 const tenants = ref([]);
 const cargando = ref(false);
-const nuevoTenant = reactive({ nombre: '', dominio: '' });
+const nuevoTenant = reactive({ nombre: '', dominio: '', email: '', telefono: '', direccion: '' });
 const isDark = ref(false);
 const showCambiarClave = ref(false);
 const claveError = ref('');
@@ -277,7 +325,7 @@ const claveForm = reactive({ actual: '', nueva: '', confirmar: '' });
 const showEditarTenant = ref(false);
 const editError = ref('');
 const editExito = ref('');
-const editForm = reactive({ id: '', nombre: '' });
+const editForm = reactive({ id: '', nombre: '', dominio: '', email: '', telefono: '', direccion: '' });
 
 const cerrarCambiarClave = () => {
   showCambiarClave.value = false;
@@ -352,11 +400,20 @@ const registrarTenant = async () => {
   try {
     const res = await apiRequest('super-admin/tenants', {
       method: 'POST',
-      data: { nombre: nuevoTenant.nombre, dominio: nuevoTenant.dominio }
+      data: { 
+        nombre: nuevoTenant.nombre, 
+        dominio: nuevoTenant.dominio,
+        email: nuevoTenant.email,
+        telefono: nuevoTenant.telefono,
+        direccion: nuevoTenant.direccion
+      }
     });
     if (res.success) {
       nuevoTenant.nombre = '';
       nuevoTenant.dominio = '';
+      nuevoTenant.email = '';
+      nuevoTenant.telefono = '';
+      nuevoTenant.direccion = '';
       await fetchTenants();
     } else {
       alert(`Error al registrar: ${res.error || 'Datos inválidos'}`);
@@ -407,6 +464,10 @@ const activarTenant = async (id) => {
 const editarTenant = (tenant) => {
   editForm.id = tenant.id;
   editForm.nombre = tenant.nombre || '';
+  editForm.dominio = tenant.dominio || '';
+  editForm.email = tenant.email || '';
+  editForm.telefono = tenant.telefono || '';
+  editForm.direccion = tenant.direccion || '';
   editError.value = '';
   editExito.value = '';
   showEditarTenant.value = true;
@@ -416,7 +477,7 @@ const cerrarEditarTenant = () => {
   showEditarTenant.value = false;
   editError.value = '';
   editExito.value = '';
-  Object.assign(editForm, { id: '', nombre: '' });
+  Object.assign(editForm, { id: '', nombre: '', dominio: '', email: '', telefono: '', direccion: '' });
 };
 
 const guardarEdicionTenant = async () => {
@@ -430,7 +491,13 @@ const guardarEdicionTenant = async () => {
   try {
     const res = await apiRequest(`super-admin/tenants/${editForm.id}`, {
       method: 'PUT',
-      data: { nombre: editForm.nombre }
+      data: { 
+        nombre: editForm.nombre,
+        dominio: editForm.dominio,
+        email: editForm.email,
+        telefono: editForm.telefono,
+        direccion: editForm.direccion
+      }
     });
     if (res.success) {
       editExito.value = '✓ Agencia actualizada correctamente.';
