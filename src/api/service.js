@@ -59,3 +59,9 @@ export const apiRequest = async (endpoint, options = {}) => {
     return { success: false, error: errorMessage };
   }
 };
+
+// ── Dashboard de métricas ───────────────────────────────────────────
+export const getDashboardStats = () => apiRequest('/dashboard');
+
+export const trackIconClick = (iconId) =>
+  apiRequest(`/iconos/${iconId}/click`, { method: 'POST' });

@@ -104,6 +104,13 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Métricas del dashboard (solo para admins de tenant) -->
+                <DashboardMetrics
+                    v-if="authStore.user?.rol !== 'super-admin'"
+                    :data="dashboardStats"
+                    :loading="loadingStats"
+                />
             </div>
 
             <!-- Empresas Tab -->
@@ -279,11 +286,12 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { apiRequest } from '@/api/service';
+import { apiRequest, getDashboardStats } from '@/api/service';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseSwitch from '@/components/BaseSwitch.vue';
 import BaseModal from '@/components/BaseModal.vue';
+import DashboardMetrics from '@/components/DashboardMetrics.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
@@ -293,6 +301,10 @@ const users = ref([]);
 const loading = ref(false);
 const saving = ref(false);
 const activeTab = ref('dashboard');
+
+// Dashboard metrics
+const dashboardStats = ref({ ultimos_iconos: [], top_iconos: [], top_usuarios: [] });
+const loadingStats = ref(false);
 
 const currentPage = ref(1);
 const itemsPerPage = 8;
@@ -364,6 +376,24 @@ const fetchData = async () => {
     }
 };
 
+const fetchDashboardStats = async () => {
+    loadingStats.value = true;
+    try {
+        const res = await getDashboardStats();
+        if (res.success) {
+            dashboardStats.value = {
+                ultimos_iconos: res.ultimos_iconos || [],
+                top_iconos: res.top_iconos || [],
+                top_usuarios: res.top_usuarios || [],
+            };
+        }
+    } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+    } finally {
+        loadingStats.value = false;
+    }
+};
+
 onMounted(async () => {
     fetchData();
     const savedTheme = localStorage.getItem('theme');
@@ -377,6 +407,11 @@ onMounted(async () => {
     // Cargar info del tenant si falta (para usuarios no super-admin)
     if (authStore.isAuthenticated && authStore.user?.rol !== 'super-admin' && !authStore.tenantName) {
         await authStore.fetchTenantInfo();
+    }
+
+    // Cargar métricas del dashboard (solo para admins de tenant, no super-admin)
+    if (authStore.user?.rol !== 'super-admin') {
+        fetchDashboardStats();
     }
 });
 

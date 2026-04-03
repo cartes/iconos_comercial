@@ -140,7 +140,7 @@
                         </div>
 
                         <!-- Preview -->
-                        <div class="aspect-square p-6 flex items-center justify-center relative cursor-pointer group/preview" @click="copyUrl(icon.url)">
+                        <div class="aspect-square p-6 flex items-center justify-center relative cursor-pointer group/preview" @click="copyUrl(icon.url, icon.id)">
                             <img :src="icon.url" :alt="icon.etiqueta" class="max-w-full max-h-full object-contain filter group-hover/preview:scale-110 transition-transform duration-300">
                             <div class="absolute inset-0 bg-primary-600/10 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
                                 <span class="bg-primary-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg translate-y-2 group-hover/preview:translate-y-0 transition-transform">Copiar URL</span>
@@ -242,7 +242,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { apiRequest } from '@/api/service';
+import { apiRequest, trackIconClick } from '@/api/service';
 import TopBar from '@/components/TopBar.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseInput from '@/components/BaseInput.vue';
@@ -522,9 +522,10 @@ const handleRename = async () => {
     saving.value = false;
 };
 
-const copyUrl = (url) => {
+const copyUrl = (url, iconId = null) => {
     navigator.clipboard.writeText(url);
     showToast('URL copiada al portapapeles');
+    if (iconId) trackIconClick(iconId).catch(() => {});
 };
 
 const showToast = (msg) => {
