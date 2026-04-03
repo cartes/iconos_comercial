@@ -55,8 +55,8 @@
                             <svg class="w-5 h-5 shrink-0 transition-colors" :class="[selectedFolderId === folder.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600']" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
-                            <span class="flex-1 text-left truncate">{{ folder.nombre }}</span>
-                            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
+                            <span class="flex-1 text-left line-clamp-2">{{ folder.nombre }}</span>
+                            <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold rounded-full transition-colors whitespace-nowrap ml-2" :class="[selectedFolderId === folder.id ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300' : 'text-slate-500']">
                                 {{ iconCountByFolder[folder.id] || 0 }}
                             </span>
                         </button>
