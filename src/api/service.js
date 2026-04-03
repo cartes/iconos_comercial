@@ -1,58 +1,61 @@
+import axios from 'axios';
+
 const API_BASE_URL = "https://apiiconos-production.up.railway.app/api"; //import.meta.env.VITE_API_URL || "http://localhost:8004/api";
 
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "X-Tenant": "1" // <-- Inyección permanente del identificador de la agencia para cada petición
+  }
+});
+
+// Interceptor de peticiones para agregar el token dinámico
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Mantenemos la función original para no romper ninguna llamada en otras partes del código
 export const apiRequest = async (endpoint, options = {}) => {
   try {
-    const token = localStorage.getItem("auth_token");
-
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     const config = {
       method: options.method || "GET",
-      headers,
+      url: endpoint, // axios resuelve automáticamente con la baseURL
+      headers: options.headers || {},
+      data: options.data, // axios se encarga del JSON.stringify automáticamente
     };
 
-    if (options.data) {
-      config.body = JSON.stringify(options.data);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/${endpoint}`, config);
-
-    if (response.status === 401 && endpoint !== "login") {
-      localStorage.removeItem("user");
-      localStorage.removeItem("auth_token");
-      window.location.hash = "#/login";
-      throw new Error("Sesión expirada o token inválido");
-    }
+    const response = await api(config);
 
     if (response.status === 204) {
       return { success: true };
     }
 
-    let result;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      result = await response.json();
-    } else {
-      const text = await response.text();
-      console.error("Non-JSON API response:", text);
-      throw new Error(`Error del servidor (${response.status})`);
-    }
-
-    if (!response.ok) {
-      throw new Error(result.error || result.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return result;
+    // En Axios los datos ya vienen parseados como objeto JSON en `response.data`
+    return response.data;
   } catch (error) {
     console.error(`API Request Error [${endpoint}]:`, error);
-    return { success: false, error: error.message || "Error de conexión" };
+
+    const status = error.response ? error.response.status : null;
+    const data = error.response ? error.response.data : null;
+
+    if (status === 401 && endpoint !== "login") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("auth_token");
+      window.location.hash = "#/login";
+      return { success: false, error: "Sesión expirada o token inválido" };
+    }
+
+    const errorMessage = data?.error || data?.message || error.message || `Error del servidor (${status})`;
+
+    return { success: false, error: errorMessage };
   }
 };
