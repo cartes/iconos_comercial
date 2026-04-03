@@ -69,24 +69,31 @@ const toggleTheme = () => {
 };
 
 const updateTheme = () => {
+    const root = document.documentElement;
     if (isDark.value) {
-        document.documentElement.classList.add('dark');
+        root.classList.add('dark');
+        root.classList.remove('light');
         localStorage.setItem('theme', 'dark');
     } else {
-        document.documentElement.classList.remove('dark');
+        root.classList.remove('dark');
+        root.classList.add('light');
         localStorage.setItem('theme', 'light');
     }
 };
 
 onMounted(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        isDark.value = savedTheme === 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    isDark.value = savedTheme === 'dark';
+    
+    // Aplicar tema al montar
+    const root = document.documentElement;
+    if (isDark.value) {
+        root.classList.add('dark');
+        root.classList.remove('light');
     } else {
-        isDark.value = false;
-        localStorage.setItem('theme', 'light');
+        root.classList.remove('dark');
+        root.classList.add('light');
     }
-    updateTheme();
 });
 
 const logout = () => {

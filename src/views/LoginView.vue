@@ -1,21 +1,21 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-grad-dark p-6">
-        <div class="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-10 shadow-2xl">
+    <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-950 p-6">
+        <div class="w-full max-w-md bg-white dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-10 shadow-2xl">
             <div class="text-center mb-10">
                 <div class="w-16 h-16 bg-grad-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40">
                     <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2">
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                     {{ needsBootstrap ? 'Configuración Inicial' : 'Bienvenido' }}
                 </h1>
-                <p class="text-slate-400 text-sm">
+                <p class="text-slate-600 dark:text-slate-400 text-sm">
                     {{ needsBootstrap ? 'Configura el primer administrador' : 'Gestiona tus activos digitales' }}
                 </p>
             </div>
 
-            <div v-if="error" class="bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg p-3.5 mb-6 text-sm text-center">
+            <div v-if="error" class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 dark:border-red-500/30 rounded-lg p-3.5 mb-6 text-sm text-center">
                 {{ error }}
             </div>
 
