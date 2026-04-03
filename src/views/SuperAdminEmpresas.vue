@@ -24,6 +24,12 @@
             </svg>
           </button>
           <span class="user-info-text">Hola, {{ authStore.user?.email || 'Super Admin' }}</span>
+          <button class="btn btn-cambiar-clave header-btn-icon" @click="showCambiarClave = true" title="Cambiar contraseña">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </button>
           <button class="btn btn-primary logout-btn-legacy" @click="logout" title="Cerrar Sesión">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
@@ -140,6 +146,47 @@
         </div>
       </main>
     </div>
+
+    <!-- Modal Cambiar Contraseña -->
+    <Transition name="modal">
+      <div v-if="showCambiarClave" class="modal-overlay" @click.self="cerrarCambiarClave">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              Cambiar Contraseña
+            </h3>
+            <button class="modal-close" @click="cerrarCambiarClave">✕</button>
+          </div>
+          <form @submit.prevent="cambiarClave" class="modal-form">
+            <div class="form-group">
+              <label class="label">Contraseña actual</label>
+              <input v-model="claveForm.actual" type="password" class="form-input" placeholder="••••••••" required :disabled="guardando">
+            </div>
+            <div class="form-group">
+              <label class="label">Nueva contraseña</label>
+              <input v-model="claveForm.nueva" type="password" class="form-input" placeholder="Mínimo 8 caracteres" required minlength="8" :disabled="guardando">
+            </div>
+            <div class="form-group">
+              <label class="label">Confirmar nueva contraseña</label>
+              <input v-model="claveForm.confirmar" type="password" class="form-input" placeholder="Repite la nueva contraseña" required :disabled="guardando">
+            </div>
+            <p v-if="claveError" class="clave-error">{{ claveError }}</p>
+            <p v-if="claveExito" class="clave-exito">{{ claveExito }}</p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline" @click="cerrarCambiarClave" :disabled="guardando">Cancelar</button>
+              <button type="submit" class="btn btn-success" :disabled="guardando">
+                <span v-if="guardando" class="spinner-small"></span>
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -156,6 +203,44 @@ const empresas = ref([]);
 const cargando = ref(false);
 const nuevaEmpresa = reactive({ nombre: '', subdominio: '' });
 const isDark = ref(false);
+const showCambiarClave = ref(false);
+const guardando = ref(false);
+const claveError = ref('');
+const claveExito = ref('');
+const claveForm = reactive({ actual: '', nueva: '', confirmar: '' });
+
+const cerrarCambiarClave = () => {
+  showCambiarClave.value = false;
+  claveError.value = '';
+  claveExito.value = '';
+  Object.assign(claveForm, { actual: '', nueva: '', confirmar: '' });
+};
+
+const cambiarClave = async () => {
+  claveError.value = '';
+  claveExito.value = '';
+  if (claveForm.nueva !== claveForm.confirmar) {
+    claveError.value = 'Las contraseñas nuevas no coinciden.';
+    return;
+  }
+  guardando.value = true;
+  try {
+    const res = await apiRequest('cambiar-clave', {
+      method: 'POST',
+      data: { clave: claveForm.actual, nuevaClave: claveForm.nueva }
+    });
+    if (res.success) {
+      claveExito.value = '✓ Contraseña actualizada correctamente.';
+      setTimeout(cerrarCambiarClave, 1800);
+    } else {
+      claveError.value = res.error || 'No se pudo actualizar la contraseña.';
+    }
+  } catch (err) {
+    claveError.value = 'Error de red. Intenta nuevamente.';
+  } finally {
+    guardando.value = false;
+  }
+};
 
 const toggleTheme = () => {
   isDark.value = !isDark.value;
@@ -738,5 +823,132 @@ onMounted(() => {
   .user-info-text {
     display: none;
   }
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+:global(.dark) .modal-box {
+  background: #1e1e2d;
+  color: #fff;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+:global(.dark) .modal-header h3 {
+  color: #fff;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+:global(.dark) .modal-close:hover {
+  background: #2a2a3e;
+  color: #fff;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.clave-error {
+  color: #dc3545;
+  font-size: 13px;
+  margin: 0;
+  background: #fff5f5;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.clave-exito {
+  color: #155724;
+  font-size: 13px;
+  margin: 0;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.btn-cambiar-clave {
+  color: white;
+}
+
+/* Transitions */
+.modal-enter-active, .modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from, .modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .modal-box, .modal-leave-active .modal-box {
+  transition: transform 0.2s ease;
+}
+
+.modal-enter-from .modal-box {
+  transform: scale(0.95) translateY(-10px);
+}
+
+.modal-leave-to .modal-box {
+  transform: scale(0.95) translateY(-10px);
 }
 </style>
