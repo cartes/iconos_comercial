@@ -23,6 +23,11 @@
             </svg>
           </button>
           <span class="hidden sm:inline font-medium">Hola, {{ authStore.user?.email || 'Admin' }}</span>
+          <button class="p-2 hover:bg-white/15 rounded-lg transition-colors" @click="showPerfil = true" title="Mi Perfil">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </button>
           <button class="bg-white text-primary-600 px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2" @click="logout" title="Cerrar Sesión">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
@@ -312,6 +317,8 @@
             <BaseButton form="addUserForm" type="submit" :loading="saving">Crear Usuario</BaseButton>
         </template>
     </BaseModal>
+
+    <PerfilSlideover :show="showPerfil" @close="showPerfil = false" />
   </div>
 </template>
 
@@ -324,6 +331,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseSwitch from '@/components/BaseSwitch.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import DashboardMetrics from '@/components/DashboardMetrics.vue';
+import PerfilSlideover from '@/components/PerfilSlideover.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
@@ -333,6 +341,7 @@ const users = ref([]);
 const loading = ref(false);
 const saving = ref(false);
 const activeTab = ref('dashboard');
+const showPerfil = ref(false);
 
 // Dashboard metrics
 const dashboardStats = ref({ ultimos_iconos: [], top_iconos: [], top_usuarios: [] });

@@ -46,11 +46,11 @@
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ auth.user?.rol === 'admin' ? 'Administrador' : 'Usuario' }}</span>
             </div>
 
-            <RouterLink to="/perfil" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 transition-all" title="Mi Perfil">
+            <button @click="showPerfil = true" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 transition-all" title="Mi Perfil">
                 <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                 </svg>
-            </RouterLink>
+            </button>
 
             <button @click="logout" class="bg-red-500/10 text-red-600 hover:bg-red-500/20 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all" title="Cerrar Sesión">
                 <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,19 +60,23 @@
             </button>
         </div>
     </header>
+
+    <PerfilSlideover :show="showPerfil" @close="showPerfil = false" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useSearchStore } from '@/stores/search';
+import PerfilSlideover from '@/components/PerfilSlideover.vue';
 
 const auth = useAuthStore();
 const searchStore = useSearchStore();
 const router = useRouter();
 
 const isDark = ref(false);
+const showPerfil = ref(false);
 
 const toggleTheme = () => {
     isDark.value = !isDark.value;

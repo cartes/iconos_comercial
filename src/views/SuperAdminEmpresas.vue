@@ -26,9 +26,9 @@
             </svg>
           </button>
           <span class="hidden sm:inline font-medium">Hola, {{ authStore.user?.email || 'Super Admin' }}</span>
-          <button class="p-2 hover:bg-white/15 rounded-lg transition-colors" @click="showCambiarClave = true" title="Cambiar contraseña">
+          <button class="p-2 hover:bg-white/15 rounded-lg transition-colors" @click="showPerfil = true" title="Mi Perfil">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </button>
           <button class="bg-white text-primary-600 px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2" @click="logout" title="Cerrar Sesión">
@@ -158,21 +158,6 @@
     </div>
 
     <!-- Modals -->
-    <BaseModal :show="showCambiarClave" title="Cambiar Contraseña" @close="cerrarCambiarClave">
-      <form id="cambiarClaveForm" @submit.prevent="cambiarClave" class="flex flex-col gap-4">
-        <BaseInput label="Contraseña actual" v-model="claveForm.actual" type="password" required :disabled="cargando" />
-        <BaseInput label="Nueva contraseña" v-model="claveForm.nueva" type="password" required minlength="8" :disabled="cargando" />
-        <BaseInput label="Confirmar nueva contraseña" v-model="claveForm.confirmar" type="password" required :disabled="cargando" />
-        
-        <div v-if="claveError" class="p-3 bg-red-100 text-red-700 text-sm rounded-lg border border-red-200">{{ claveError }}</div>
-        <div v-if="claveExito" class="p-3 bg-green-100 text-green-700 text-sm rounded-lg border border-green-200">{{ claveExito }}</div>
-      </form>
-      <template #footer>
-        <BaseButton variant="secondary" @click="cerrarCambiarClave" :disabled="cargando">Cancelar</BaseButton>
-        <BaseButton form="cambiarClaveForm" type="submit" :loading="cargando">Guardar cambios</BaseButton>
-      </template>
-    </BaseModal>
-
     <BaseModal :show="showEditarTenant" title="Editar Agencia" @close="cerrarEditarTenant">
       <form id="editarTenantForm" @submit.prevent="guardarEdicionTenant" class="flex flex-col gap-4">
         <BaseInput label="Nombre Comercial" v-model="editForm.nombre" required :disabled="cargando" />
@@ -189,6 +174,8 @@
         <BaseButton form="editarTenantForm" type="submit" :loading="cargando">Guardar cambios</BaseButton>
       </template>
     </BaseModal>
+
+    <PerfilSlideover :show="showPerfil" @close="showPerfil = false" />
   </div>
 </template>
 
@@ -200,6 +187,7 @@ import { useAuthStore } from '@/stores/auth';
 import BaseModal from '@/components/BaseModal.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import PerfilSlideover from '@/components/PerfilSlideover.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -208,48 +196,12 @@ const tenants = ref([]);
 const cargando = ref(false);
 const nuevoTenant = reactive({ nombre: '', dominio: '', email: '', telefono: '', direccion: '' });
 const isDark = ref(false);
-const showCambiarClave = ref(false);
-const claveError = ref('');
-const claveExito = ref('');
-const claveForm = reactive({ actual: '', nueva: '', confirmar: '' });
+const showPerfil = ref(false);
 
 const showEditarTenant = ref(false);
 const editError = ref('');
 const editExito = ref('');
 const editForm = reactive({ id: '', nombre: '', dominio: '', email: '', telefono: '', direccion: '' });
-
-const cerrarCambiarClave = () => {
-  showCambiarClave.value = false;
-  claveError.value = '';
-  claveExito.value = '';
-  Object.assign(claveForm, { actual: '', nueva: '', confirmar: '' });
-};
-
-const cambiarClave = async () => {
-  claveError.value = '';
-  claveExito.value = '';
-  if (claveForm.nueva !== claveForm.confirmar) {
-    claveError.value = 'Las contraseñas nuevas no coinciden.';
-    return;
-  }
-  cargando.value = true;
-  try {
-    const res = await apiRequest('cambiar-clave', {
-      method: 'POST',
-      data: { clave: claveForm.actual, nuevaClave: claveForm.nueva }
-    });
-    if (res.success) {
-      claveExito.value = '✓ Contraseña actualizada correctamente.';
-      setTimeout(cerrarCambiarClave, 1800);
-    } else {
-      claveError.value = res.error || 'No se pudo actualizar la contraseña.';
-    }
-  } catch (err) {
-    claveError.value = 'Error de red. Intenta nuevamente.';
-  } finally {
-    cargando.value = false;
-  }
-};
 
 const toggleTheme = () => {
   isDark.value = !isDark.value;
