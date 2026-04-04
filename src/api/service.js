@@ -47,11 +47,28 @@ export const apiRequest = async (endpoint, options = {}) => {
     const status = error.response ? error.response.status : null;
     const data = error.response ? error.response.data : null;
 
+    // 401 — Sesión expirada
     if (status === 401 && endpoint !== "login") {
       localStorage.removeItem("user");
       localStorage.removeItem("auth_token");
       window.location.hash = "#/login";
       return { success: false, error: "Sesión expirada o token inválido" };
+    }
+
+    // 403 — Sin permisos
+    if (status === 403) {
+      return { success: false, error: "No tienes permisos para realizar esta acción.", forbidden: true };
+    }
+
+    // 422 — Errores de validación de Laravel: propagar los errors por campo
+    if (status === 422 && data?.errors) {
+      const firstField = Object.values(data.errors)[0];
+      const firstMsg = Array.isArray(firstField) ? firstField[0] : firstField;
+      return {
+        success: false,
+        error: firstMsg || "Datos inválidos. Revisa los campos.",
+        errors: data.errors,
+      };
     }
 
     const errorMessage = data?.error || data?.message || error.message || `Error del servidor (${status})`;

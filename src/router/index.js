@@ -14,16 +14,55 @@ const router = createRouter({
       path: "/",
       redirect: "/login",
     },
+    // ── Redirect de compatibilidad ──────────────────────────────────
+    {
+      path: "/admin/empresas",
+      redirect: "/super-admin/agencias",
+    },
+    // ── Super Admin (con layout propio con sidebar) ─────────────────
+    {
+      path: "/super-admin",
+      component: () => import("../layouts/SuperAdminLayout.vue"),
+      meta: { requiresAuth: true, role: "super-admin" },
+      redirect: "/super-admin/dashboard",
+      children: [
+        {
+          path: "dashboard",
+          name: "super-dashboard",
+          component: () => import("../views/superadmin/Dashboard.vue"),
+        },
+        {
+          path: "agencias",
+          name: "super-agencias",
+          component: () => import("../views/superadmin/Agencias.vue"),
+        },
+        {
+          path: "usuarios",
+          name: "super-usuarios",
+          component: () => import("../views/superadmin/Usuarios.vue"),
+        },
+        {
+          path: "pagos",
+          name: "super-pagos",
+          component: () => import("../views/superadmin/Pagos.vue"),
+        },
+        {
+          path: "planes",
+          name: "super-planes",
+          component: () => import("../views/superadmin/Planes.vue"),
+        },
+        {
+          path: "configuracion",
+          name: "super-configuracion",
+          component: () => import("../views/superadmin/Configuracion.vue"),
+        },
+      ],
+    },
+    // ── Admin de Tenant ─────────────────────────────────────────────
     {
       path: "/admin",
       name: "admin",
       component: () => import("../views/AdminDashboard.vue"),
-      meta: { requiresAuth: true, role: "admin" },
-    },
-    {
-      path: "/admin/empresas",
-      name: "admin-empresas",
-      component: () => import("../views/SuperAdminEmpresas.vue"),
       meta: { requiresAuth: true, role: "admin" },
     },
     {
@@ -54,19 +93,19 @@ router.beforeEach((to, _from) => {
     return "/login";
   } else if (to.path === "/login" && auth.isAuthenticated) {
     if (auth.user.rol === "super-admin") {
-      return "/admin/empresas";
+      return "/super-admin/dashboard";
     } else if (auth.user.rol === "admin") {
       return "/admin";
     } else {
       return "/portal";
     }
   } else if (to.meta.role) {
-    const isAllowed = 
-      auth.user?.rol === to.meta.role || 
+    const isAllowed =
+      auth.user?.rol === to.meta.role ||
       (to.meta.role === "admin" && auth.user?.rol === "super-admin");
 
     if (!isAllowed) {
-      if (auth.user?.rol === "super-admin") return "/admin/empresas";
+      if (auth.user?.rol === "super-admin") return "/super-admin/dashboard";
       if (auth.user?.rol === "admin") return "/admin";
       return "/portal";
     }
