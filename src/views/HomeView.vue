@@ -58,7 +58,7 @@
       <div class="relative z-10 max-w-7xl mx-auto px-6 xl:px-10 w-full py-16 lg:pt-24 lg:pb-16">
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-10 xl:gap-20 lg:items-center">
 
-          <!-- ── Left: Copy ── -->
+          <!-- ── Left: Copy (always visible) ── -->
           <div class="hero-left">
             <!-- Badge -->
             <div class="inline-flex mb-7">
@@ -109,8 +109,8 @@
             </div>
           </div>
 
-          <!-- ── Right: Animated visual ── -->
-          <div ref="heroVisualRef" class="hero-visual relative">
+          <!-- ── Right: Animated visual — DESKTOP ONLY ── -->
+          <div ref="heroVisualRef" class="hero-visual relative hidden lg:block">
 
             <!-- Surrounding card glow -->
             <div class="visual-bg-glow absolute inset-0 rounded-3xl pointer-events-none -z-0"
@@ -118,15 +118,15 @@
             </div>
 
             <!-- Floating messages -->
-            <div ref="msg1Ref" class="float-msg" style="top: 6px; left: 50%; transform: translateX(-50%); opacity: 0;">
+            <div ref="msg1Ref" class="float-msg msg-1" style="top: 6px; left: 50%; transform: translateX(-50%); opacity: 0;">
               <span class="msg-dot" style="background: #3b82f6"></span>
               <span>Describe tu necesidad.</span>
             </div>
-            <div ref="msg2Ref" class="float-msg" style="top: 50%; right: 6px; transform: translateY(-50%); opacity: 0;">
+            <div ref="msg2Ref" class="float-msg msg-2" style="top: 50%; right: 6px; transform: translateY(-50%); opacity: 0;">
               <span class="msg-dot" style="background: #a855f7"></span>
               <span>Aiconic organiza y clasifica.</span>
             </div>
-            <div ref="msg3Ref" class="float-msg" style="bottom: 6px; left: 50%; transform: translateX(-50%); opacity: 0;">
+            <div ref="msg3Ref" class="float-msg msg-3" style="bottom: 6px; left: 50%; transform: translateX(-50%); opacity: 0;">
               <span class="msg-dot" style="background: #ec4899"></span>
               <span>Accede a tu librería perfecta.</span>
             </div>
@@ -172,54 +172,50 @@
         </div>
       </div>
 
-      <!-- Mobile-only sticky cards section -->
-      <div v-if="isMobile" ref="mobileCardsRef" class="lg:hidden relative bg-white py-20">
-        <div class="max-w-7xl mx-auto px-6 w-full">
-          <div class="sticky top-[68px] z-20 pb-8">
-            <div class="grid grid-cols-4 gap-2.5">
-              <div
-                v-for="(icon, i) in ICONS"
-                :key="i"
-                class="icon-card relative rounded-2xl overflow-hidden border border-slate-100"
-              >
-                <div class="skeleton-overlay absolute inset-0 flex items-center justify-center rounded-2xl"
-                  :style="{ background: hexToRgba(icon.color, 0.06) }">
-                  <div class="skel-blob rounded-xl" :style="{ background: hexToRgba(icon.color, 0.18) }"></div>
-                </div>
-                <div class="icon-content absolute inset-0 flex flex-col items-center justify-center gap-1 p-2 bg-white">
-                  <div class="icon-glyph rounded-xl flex items-center justify-center flex-shrink-0"
-                    :style="{ background: hexToRgba(icon.color, 0.1) }">
-                    <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
-                      :style="{ stroke: icon.color }">
-                      <path v-for="p in icon.paths" :key="p" :d="p"/>
-                    </svg>
-                  </div>
-                  <span class="text-[9px] font-medium text-slate-400 leading-tight text-center truncate w-full px-1">
-                    {{ icon.name }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="h-96"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Mobile: Show copy after cards section if needed -->
-    <div v-if="isMobile" class="lg:hidden bg-white py-12">
-      <div class="max-w-7xl mx-auto px-6">
-        <p class="text-slate-500 text-center text-sm">Scroll up para ver la librería</p>
-      </div>
-    </div>
-
-      <!-- Desktop Scroll indicator -->
-      <div v-if="!isMobile" class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 pointer-events-none">
+      <!-- Scroll indicator — dentro del hero, solo desktop -->
+      <div class="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 z-10 pointer-events-none">
         <span class="text-[10px] font-semibold tracking-widest uppercase text-slate-300">Scroll</span>
         <div class="scroll-track w-[18px] h-7 rounded-full border-2 border-slate-200 flex items-start justify-center pt-1.5">
           <div class="scroll-dot w-1 h-1.5 rounded-full bg-slate-400"></div>
         </div>
       </div>
+
+    </section>
+
+    <!-- ══ MOBILE ONLY: Sección sticky de tarjetas (fuera del hero) ══ -->
+    <!--
+      Para que sticky funcione: el padre debe tener altura real suficiente
+      para que el hijo tenga espacio de "pegarse" al hacer scroll.
+      min-h-[220vh] garantiza eso. Las tarjetas se pegan al top cuando llegan.
+    -->
+    <div class="lg:hidden mobile-sticky-wrapper">
+      <div class="mobile-sticky-cards">
+        <p class="text-center text-xs font-semibold tracking-widest uppercase text-slate-400 mb-4">Tu librería organizada</p>
+        <div class="grid grid-cols-4 gap-2">
+          <div
+            v-for="(icon, i) in ICONS"
+            :key="'m' + i"
+            class="mobile-icon-card relative rounded-xl overflow-hidden border border-slate-100"
+          >
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-1 p-1.5 bg-white">
+              <div class="rounded-lg flex items-center justify-center flex-shrink-0"
+                style="width:32px;height:32px"
+                :style="{ background: hexToRgba(icon.color, 0.1) }">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                  :style="{ stroke: icon.color }">
+                  <path v-for="p in icon.paths" :key="p" :d="p"/>
+                </svg>
+              </div>
+              <span class="text-[8px] font-medium text-slate-400 leading-tight text-center truncate w-full px-0.5">
+                {{ icon.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Espacio de scroll para que el sticky tenga recorrido -->
+      <div class="mobile-sticky-spacer"></div>
+    </div>
 
     <!-- ══════════════════════ FEATURES ══════════════════════ -->
     <section id="features" class="py-24 xl:py-32 bg-slate-50">
@@ -336,7 +332,7 @@ const msg1Ref      = ref(null)
 const msg2Ref      = ref(null)
 const msg3Ref      = ref(null)
 const navScrolled  = ref(false)
-const isMobile     = ref(false)
+
 
 // ── Icon data (16 icons) ─────────────────────────────────────────
 const ICONS = [
@@ -395,36 +391,43 @@ const hexToRgba = (hex, alpha) => {
 
 // ── Lifecycle ─────────────────────────────────────────────────────
 const onScroll = () => { navScrolled.value = window.scrollY > 20 }
-const checkMobile = () => { isMobile.value = window.innerWidth < 1024 }
 
 onMounted(() => {
-  checkMobile()
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('resize', checkMobile, { passive: true })
 
-  // Scatter cards with random offsets from their grid position
-  const cards = gsap.utils.toArray('.icon-card')
-  cards.forEach(card => {
-    gsap.set(card, {
-      x:        gsap.utils.random(-110, 110),
-      y:        gsap.utils.random(-75, 75),
-      rotation: gsap.utils.random(-22, 22),
-      scale:    gsap.utils.random(0.78, 1.12),
-      zIndex:   Math.round(gsap.utils.random(1, 16)),
+  // ── GSAP: solo desktop vía gsap.matchMedia() ─────────────────
+  // matchMedia es 100% confiable — no depende de refs ni timing de Vue
+  const mm = gsap.matchMedia()
+
+  mm.add('(min-width: 1024px)', () => {
+    // Usar querySelector en vez de refs Vue — matchMedia puede disparar fuera del ciclo de Vue
+    const heroEl   = document.querySelector('.hero-section')
+    const cursorEl = document.querySelector('.cursor-sim')
+    const msg1El   = document.querySelector('.msg-1')
+    const msg2El   = document.querySelector('.msg-2')
+    const msg3El   = document.querySelector('.msg-3')
+
+    if (!heroEl || !cursorEl) return
+
+    // Scatter cards con posiciones aleatorias
+    const cards = gsap.utils.toArray('.icon-card')
+    cards.forEach(card => {
+      gsap.set(card, {
+        x:        gsap.utils.random(-110, 110),
+        y:        gsap.utils.random(-75, 75),
+        rotation: gsap.utils.random(-22, 22),
+        scale:    gsap.utils.random(0.78, 1.12),
+        zIndex:   Math.round(gsap.utils.random(1, 16)),
+      })
     })
-  })
 
-  // Initial hidden states
-  gsap.set('.icon-content', { opacity: 0, scale: 0.65 })
-  gsap.set(cursorSimRef.value, { opacity: 0, scale: 0.5 })
-  gsap.set([msg1Ref.value, msg2Ref.value, msg3Ref.value], { opacity: 0 })
+    gsap.set('.icon-content', { opacity: 0, scale: 0.65 })
+    gsap.set(cursorEl, { opacity: 0, scale: 0.5 })
+    gsap.set([msg1El, msg2El, msg3El].filter(Boolean), { opacity: 0 })
 
-  // ── Solo animar en DESKTOP (lg+) ──────────────────────────────
-  if (!isMobile.value) {
-    // ── Main ScrollTrigger timeline ──────────────────────────────
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: heroRef.value,
+        trigger: heroEl,
         start:   'top top',
         end:     '+=270%',
         scrub:   1.8,
@@ -433,20 +436,16 @@ onMounted(() => {
       },
     })
 
-    // 0.0 → msg1 appears
-    tl.to(msg1Ref.value, { opacity: 1, duration: 0.15, ease: 'power2.out' }, 0)
+    tl.to(msg1El, { opacity: 1, duration: 0.15, ease: 'power2.out' }, 0)
 
-    // 0.1 → cursor fades in, starts moving
-    tl.to(cursorSimRef.value, { opacity: 1, scale: 1, duration: 0.12, ease: 'back.out(2)' }, 0.1)
-    tl.to(cursorSimRef.value, { x: -90, y: -55, duration: 0.35, ease: 'power2.inOut' }, 0.2)
-    tl.to(cursorSimRef.value, { x:  70, y:  60, duration: 0.35, ease: 'power2.inOut' }, 0.5)
-    tl.to(cursorSimRef.value, { x: -50, y:  90, duration: 0.3,  ease: 'power2.inOut' }, 0.8)
+    tl.to(cursorEl, { opacity: 1, scale: 1, duration: 0.12, ease: 'back.out(2)' }, 0.1)
+    tl.to(cursorEl, { x: -90, y: -55, duration: 0.35, ease: 'power2.inOut' }, 0.2)
+    tl.to(cursorEl, { x:  70, y:  60, duration: 0.35, ease: 'power2.inOut' }, 0.5)
+    tl.to(cursorEl, { x: -50, y:  90, duration: 0.3,  ease: 'power2.inOut' }, 0.8)
 
-    // 0.7 → msg1 out, msg2 in
-    tl.to(msg1Ref.value, { opacity: 0, duration: 0.1 }, 0.72)
-    tl.to(msg2Ref.value, { opacity: 1, duration: 0.15 }, 0.78)
+    tl.to(msg1El, { opacity: 0, duration: 0.1 }, 0.72)
+    tl.to(msg2El, { opacity: 1, duration: 0.15 }, 0.78)
 
-    // 0.85 → skeletons fade away, icons reveal
     tl.to('.skeleton-overlay', {
       opacity: 0,
       scale:   0.75,
@@ -462,11 +461,9 @@ onMounted(() => {
       ease:    'back.out(1.7)',
     }, 0.95)
 
-    // 1.35 → msg2 out, msg3 in
-    tl.to(msg2Ref.value, { opacity: 0, duration: 0.1 }, 1.35)
-    tl.to(msg3Ref.value, { opacity: 1, duration: 0.15 }, 1.42)
+    tl.to(msg2El, { opacity: 0, duration: 0.1 }, 1.35)
+    tl.to(msg3El, { opacity: 1, duration: 0.15 }, 1.42)
 
-    // 1.5 → cards snap to perfect grid (x=0, y=0, rotation=0)
     tl.to('.icon-card', {
       x: 0, y: 0, rotation: 0, scale: 1, zIndex: 1,
       stagger: { each: 0.045, from: 'start' },
@@ -474,21 +471,16 @@ onMounted(() => {
       ease:    'power3.out',
     }, 1.5)
 
-    // 1.9 → cursor disappears
-    tl.to(cursorSimRef.value, { opacity: 0, scale: 0.5, duration: 0.15 }, 1.92)
+    tl.to(cursorEl, { opacity: 0, scale: 0.5, duration: 0.15 }, 1.92)
+    tl.to(msg3El, { opacity: 0, duration: 0.15 }, 2.12)
 
-    // 2.1 → msg3 out
-    tl.to(msg3Ref.value, { opacity: 0, duration: 0.15 }, 2.12)
-  } else {
-    // ── MOBILE: mostrar iconos directamente, sin animaciones ──
-    gsap.set('.skeleton-overlay', { opacity: 0 })
-    gsap.set('.icon-content', { opacity: 1, scale: 1 })
-  }
+    // cleanup al salir del breakpoint
+    return () => { tl.kill() }
+  })
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('resize', checkMobile)
   ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
@@ -545,22 +537,38 @@ onUnmounted(() => {
   opacity: 0.35;
 }
 
-/* ── Hero visual container ── */
+/* ── Hero visual container — desktop only ── */
 .hero-visual {
   padding: 36px;
 }
 
-@media (max-width: 1023px) {
-  .hero-visual {
-    position: sticky;
-    top: 68px;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-    padding: 24px;
-    background: white;
-  }
+/* ══ Mobile sticky section ══════════════════════════════════════ */
+.mobile-sticky-wrapper {
+  /* El padre necesita ser más alto que la pantalla para que sticky tenga recorrido */
+  min-height: 220vh;
+  position: relative;
+  background: white;
+}
+
+.mobile-sticky-cards {
+  position: sticky;
+  top: 68px; /* altura exacta del navbar */
+  z-index: 20;
+  background: white;
+  padding: 20px 24px 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.mobile-icon-card {
+  aspect-ratio: 1 / 1;
+  min-height: 60px;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(148,163,184,0.12);
+}
+
+.mobile-sticky-spacer {
+  /* Espacio de scroll que "consume" el sticky — ajustar según cuánto se quiere que dure */
+  height: 120vh;
 }
 
 /* ── Icon cards ── */
