@@ -189,6 +189,13 @@ const navItems = [
     </svg>`,
   },
   {
+    to: '/super-admin/seguridad',
+    label: 'Seguridad',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1rem;height:1rem">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>`,
+  },
+  {
     to: '/super-admin/configuracion',
     label: 'Configuración',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem">

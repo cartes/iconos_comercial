@@ -61,6 +61,11 @@ const router = createRouter({
           name: "super-api-keys",
           component: () => import("../views/superadmin/ApiKeys.vue"),
         },
+        {
+          path: "seguridad",
+          name: "super-seguridad",
+          component: () => import("../views/superadmin/CambioPassword.vue"),
+        },
       ],
     },
     // ── Admin de Tenant ─────────────────────────────────────────────
