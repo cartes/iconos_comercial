@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/iconos/",
+  base: "/iconos_comercial/",
   plugins: [vue(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {
