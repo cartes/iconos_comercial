@@ -276,9 +276,11 @@ const fetchTenants = async () => {
 const fetchApiKeys = async () => {
   keysLoading.value = true
   try {
-    const res = await apiRequest('api-keys')
+    const res = await apiRequest('super-admin/api-keys')
     if (res.success !== false) {
-      apiKeys.value = res.data || res.keys || res || []
+      // If it's paginated, actual keys are in res.data (or res.data.data)
+      const data = res.data || res.keys || res || []
+      apiKeys.value = Array.isArray(data) ? data : (data.data || [])
     }
   } catch (err) {
     console.error('Error fetching API keys:', err)
@@ -293,9 +295,18 @@ const createApiKey = async () => {
   clearError()
   newToken.value = null
   
-  const res = await apiRequest('api-keys', {
+  // Convert comma-separated string to array
+  const domainsArray = form.allowed_domains
+    ? form.allowed_domains.split(',').map(d => d.trim()).filter(d => d.length > 0)
+    : []
+
+  const res = await apiRequest('super-admin/api-keys', {
     method: 'POST',
-    data: { ...form }
+    data: { 
+      name: form.app_name, // Backend expects 'name'
+      tenant_id: form.tenant_id,
+      allowed_domains: domainsArray // Backend expects array
+    }
   })
   
   if (!handleError(res)) {
@@ -312,7 +323,7 @@ const revokeApiKey = async (id) => {
   if (!confirm('¿Estás seguro de que deseas revocar esta API Key? Esta acción es irreversible.')) return
   
   loading.value = true
-  const res = await apiRequest(`api-keys/${id}`, { method: 'DELETE' })
+  const res = await apiRequest(`super-admin/api-keys/${id}`, { method: 'DELETE' })
   
   if (!handleError(res)) {
     fetchApiKeys()
