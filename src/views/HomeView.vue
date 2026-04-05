@@ -110,7 +110,7 @@
           </div>
 
           <!-- ── Right: Animated visual ── -->
-          <div ref="heroVisualRef" class="hero-visual relative">
+          <div ref="heroVisualRef" class="hero-visual relative lg:static lg:sticky-none" :class="isMobile ? 'sticky top-[68px] h-screen flex items-center' : ''">
 
             <!-- Surrounding card glow -->
             <div class="visual-bg-glow absolute inset-0 rounded-3xl pointer-events-none -z-0"
@@ -296,6 +296,7 @@ const msg1Ref      = ref(null)
 const msg2Ref      = ref(null)
 const msg3Ref      = ref(null)
 const navScrolled  = ref(false)
+const isMobile     = ref(false)
 
 // ── Icon data (16 icons) ─────────────────────────────────────────
 const ICONS = [
@@ -354,9 +355,12 @@ const hexToRgba = (hex, alpha) => {
 
 // ── Lifecycle ─────────────────────────────────────────────────────
 const onScroll = () => { navScrolled.value = window.scrollY > 20 }
+const checkMobile = () => { isMobile.value = window.innerWidth < 1024 }
 
 onMounted(() => {
+  checkMobile()
   window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', checkMobile, { passive: true })
 
   // Scatter cards with random offsets from their grid position
   const cards = gsap.utils.toArray('.icon-card')
@@ -375,68 +379,76 @@ onMounted(() => {
   gsap.set(cursorSimRef.value, { opacity: 0, scale: 0.5 })
   gsap.set([msg1Ref.value, msg2Ref.value, msg3Ref.value], { opacity: 0 })
 
-  // ── Main ScrollTrigger timeline ──────────────────────────────
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: heroRef.value,
-      start:   'top top',
-      end:     '+=270%',
-      scrub:   1.8,
-      pin:     true,
-      anticipatePin: 1,
-    },
-  })
+  // ── Solo animar en DESKTOP (lg+) ──────────────────────────────
+  if (!isMobile.value) {
+    // ── Main ScrollTrigger timeline ──────────────────────────────
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroRef.value,
+        start:   'top top',
+        end:     '+=270%',
+        scrub:   1.8,
+        pin:     true,
+        anticipatePin: 1,
+      },
+    })
 
-  // 0.0 → msg1 appears
-  tl.to(msg1Ref.value, { opacity: 1, duration: 0.15, ease: 'power2.out' }, 0)
+    // 0.0 → msg1 appears
+    tl.to(msg1Ref.value, { opacity: 1, duration: 0.15, ease: 'power2.out' }, 0)
 
-  // 0.1 → cursor fades in, starts moving
-  tl.to(cursorSimRef.value, { opacity: 1, scale: 1, duration: 0.12, ease: 'back.out(2)' }, 0.1)
-  tl.to(cursorSimRef.value, { x: -90, y: -55, duration: 0.35, ease: 'power2.inOut' }, 0.2)
-  tl.to(cursorSimRef.value, { x:  70, y:  60, duration: 0.35, ease: 'power2.inOut' }, 0.5)
-  tl.to(cursorSimRef.value, { x: -50, y:  90, duration: 0.3,  ease: 'power2.inOut' }, 0.8)
+    // 0.1 → cursor fades in, starts moving
+    tl.to(cursorSimRef.value, { opacity: 1, scale: 1, duration: 0.12, ease: 'back.out(2)' }, 0.1)
+    tl.to(cursorSimRef.value, { x: -90, y: -55, duration: 0.35, ease: 'power2.inOut' }, 0.2)
+    tl.to(cursorSimRef.value, { x:  70, y:  60, duration: 0.35, ease: 'power2.inOut' }, 0.5)
+    tl.to(cursorSimRef.value, { x: -50, y:  90, duration: 0.3,  ease: 'power2.inOut' }, 0.8)
 
-  // 0.7 → msg1 out, msg2 in
-  tl.to(msg1Ref.value, { opacity: 0, duration: 0.1 }, 0.72)
-  tl.to(msg2Ref.value, { opacity: 1, duration: 0.15 }, 0.78)
+    // 0.7 → msg1 out, msg2 in
+    tl.to(msg1Ref.value, { opacity: 0, duration: 0.1 }, 0.72)
+    tl.to(msg2Ref.value, { opacity: 1, duration: 0.15 }, 0.78)
 
-  // 0.85 → skeletons fade away, icons reveal
-  tl.to('.skeleton-overlay', {
-    opacity: 0,
-    scale:   0.75,
-    stagger: { each: 0.028, from: 'random' },
-    duration: 0.28,
-    ease:    'power2.in',
-  }, 0.85)
-  tl.to('.icon-content', {
-    opacity: 1,
-    scale:   1,
-    stagger: { each: 0.028, from: 'random' },
-    duration: 0.3,
-    ease:    'back.out(1.7)',
-  }, 0.95)
+    // 0.85 → skeletons fade away, icons reveal
+    tl.to('.skeleton-overlay', {
+      opacity: 0,
+      scale:   0.75,
+      stagger: { each: 0.028, from: 'random' },
+      duration: 0.28,
+      ease:    'power2.in',
+    }, 0.85)
+    tl.to('.icon-content', {
+      opacity: 1,
+      scale:   1,
+      stagger: { each: 0.028, from: 'random' },
+      duration: 0.3,
+      ease:    'back.out(1.7)',
+    }, 0.95)
 
-  // 1.35 → msg2 out, msg3 in
-  tl.to(msg2Ref.value, { opacity: 0, duration: 0.1 }, 1.35)
-  tl.to(msg3Ref.value, { opacity: 1, duration: 0.15 }, 1.42)
+    // 1.35 → msg2 out, msg3 in
+    tl.to(msg2Ref.value, { opacity: 0, duration: 0.1 }, 1.35)
+    tl.to(msg3Ref.value, { opacity: 1, duration: 0.15 }, 1.42)
 
-  // 1.5 → cards snap to perfect grid (x=0, y=0, rotation=0)
-  tl.to('.icon-card', {
-    x: 0, y: 0, rotation: 0, scale: 1, zIndex: 1,
-    stagger: { each: 0.045, from: 'start' },
-    duration: 0.55,
-    ease:    'power3.out',
-  }, 1.5)
+    // 1.5 → cards snap to perfect grid (x=0, y=0, rotation=0)
+    tl.to('.icon-card', {
+      x: 0, y: 0, rotation: 0, scale: 1, zIndex: 1,
+      stagger: { each: 0.045, from: 'start' },
+      duration: 0.55,
+      ease:    'power3.out',
+    }, 1.5)
 
-  // 1.9 → cursor disappears
-  tl.to(cursorSimRef.value, { opacity: 0, scale: 0.5, duration: 0.15 }, 1.92)
+    // 1.9 → cursor disappears
+    tl.to(cursorSimRef.value, { opacity: 0, scale: 0.5, duration: 0.15 }, 1.92)
 
-  // 2.1 → msg3 out
-  tl.to(msg3Ref.value, { opacity: 0, duration: 0.15 }, 2.12)
+    // 2.1 → msg3 out
+    tl.to(msg3Ref.value, { opacity: 0, duration: 0.15 }, 2.12)
+  } else {
+    // ── MOBILE: mostrar iconos directamente, sin animaciones ──
+    gsap.set('.skeleton-overlay', { opacity: 0 })
+    gsap.set('.icon-content', { opacity: 1, scale: 1 })
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('resize', checkMobile)
   ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
@@ -496,6 +508,19 @@ onUnmounted(() => {
 /* ── Hero visual container ── */
 .hero-visual {
   padding: 36px;
+}
+
+@media (max-width: 1023px) {
+  .hero-visual {
+    position: sticky;
+    top: 68px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    padding: 24px;
+    background: white;
+  }
 }
 
 /* ── Icon cards ── */
