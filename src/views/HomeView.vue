@@ -182,39 +182,48 @@
 
     </section>
 
-    <!-- ══ MOBILE ONLY: Sección sticky de tarjetas (fuera del hero) ══ -->
-    <!--
-      Para que sticky funcione: el padre debe tener altura real suficiente
-      para que el hijo tenga espacio de "pegarse" al hacer scroll.
-      min-h-[220vh] garantiza eso. Las tarjetas se pegan al top cuando llegan.
-    -->
-    <div class="lg:hidden mobile-sticky-wrapper">
-      <div class="mobile-sticky-cards">
-        <p class="text-center text-xs font-semibold tracking-widest uppercase text-slate-400 mb-4">Tu librería organizada</p>
-        <div class="grid grid-cols-4 gap-2">
-          <div
-            v-for="(icon, i) in ICONS"
-            :key="'m' + i"
-            class="mobile-icon-card relative rounded-xl overflow-hidden border border-slate-100"
-          >
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-1 p-1.5 bg-white">
-              <div class="rounded-lg flex items-center justify-center flex-shrink-0"
-                style="width:32px;height:32px"
-                :style="{ background: hexToRgba(icon.color, 0.1) }">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
-                  :style="{ stroke: icon.color }">
-                  <path v-for="p in icon.paths" :key="p" :d="p"/>
-                </svg>
-              </div>
-              <span class="text-[8px] font-medium text-slate-400 leading-tight text-center truncate w-full px-0.5">
-                {{ icon.name }}
-              </span>
+    <!-- ══ MOBILE ONLY: Cards section — GSAP pin igual que desktop ══ -->
+    <div class="lg:hidden mobile-cards-section">
+      <!-- Mensajes narrativos -->
+      <div class="relative h-6 mb-4" style="overflow:visible">
+        <p class="mobile-msg-1 absolute inset-x-0 text-center text-[10px] font-semibold tracking-widest uppercase text-slate-400">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400 mr-1 align-middle"></span>Describe tu necesidad.
+        </p>
+        <p class="mobile-msg-2 absolute inset-x-0 text-center text-[10px] font-semibold tracking-widest uppercase text-slate-400" style="opacity:0">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-violet-400 mr-1 align-middle"></span>Aiconic organiza y clasifica.
+        </p>
+        <p class="mobile-msg-3 absolute inset-x-0 text-center text-[10px] font-semibold tracking-widest uppercase text-slate-400" style="opacity:0">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-pink-400 mr-1 align-middle"></span>Tu librería perfecta.
+        </p>
+      </div>
+
+      <!-- Grid con skeleton + iconos (mismo patrón que desktop) -->
+      <div class="grid grid-cols-4 gap-2.5" style="overflow:visible">
+        <div
+          v-for="(icon, i) in ICONS"
+          :key="'m' + i"
+          class="mobile-icon-card relative rounded-xl border border-slate-100"
+        >
+          <div class="mobile-skeleton absolute inset-0 rounded-xl overflow-hidden"
+            :style="{ background: `linear-gradient(135deg, ${hexToRgba(icon.color, 0.22)}, ${hexToRgba(icon.color, 0.08)})` }">
+            <div class="absolute inset-0 animate-pulse rounded-xl"
+              :style="{ background: hexToRgba(icon.color, 0.14) }"></div>
+          </div>
+          <div class="mobile-icon-content absolute inset-0 flex flex-col items-center justify-center gap-1 p-1.5 bg-white rounded-xl overflow-hidden" style="opacity:0">
+            <div class="rounded-lg flex items-center justify-center flex-shrink-0"
+              style="width:30px;height:30px"
+              :style="{ background: hexToRgba(icon.color, 0.1) }">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                :style="{ stroke: icon.color }">
+                <path v-for="p in icon.paths" :key="p" :d="p"/>
+              </svg>
             </div>
+            <span class="text-[7px] font-medium text-slate-400 leading-tight text-center truncate w-full px-0.5">
+              {{ icon.name }}
+            </span>
           </div>
         </div>
       </div>
-      <!-- Espacio de scroll para que el sticky tenga recorrido -->
-      <div class="mobile-sticky-spacer"></div>
     </div>
 
     <!-- ══════════════════════ FEATURES ══════════════════════ -->
@@ -477,6 +486,66 @@ onMounted(() => {
     // cleanup al salir del breakpoint
     return () => { tl.kill() }
   })
+
+  // ── Mobile: GSAP pin igual que desktop — pina la sección de cards ──
+  mm.add('(max-width: 1023px)', () => {
+    const section = document.querySelector('.mobile-cards-section')
+    if (!section) return
+
+    const mobileCards = gsap.utils.toArray('.mobile-icon-card')
+
+    // Estado inicial: tarjetas desordenadas + iconos ocultos
+    mobileCards.forEach(card => {
+      gsap.set(card, {
+        x:        gsap.utils.random(-60, 60),
+        y:        gsap.utils.random(-36, 36),
+        rotation: gsap.utils.random(-18, 18),
+        scale:    gsap.utils.random(0.68, 1.05),
+        zIndex:   Math.round(gsap.utils.random(1, 16)),
+      })
+    })
+    gsap.set('.mobile-icon-content', { opacity: 0 })
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger:      section,
+        start:        'top 68px',  // pina cuando el top llega al borde del navbar
+        end:          '+=220%',    // 220% viewport height de recorrido
+        scrub:        1.5,
+        pin:          true,
+        anticipatePin: 1,
+      },
+    })
+
+    // 0–25 %: msg1 → msg2
+    tl.to('.mobile-msg-1', { opacity: 0, duration: 0.12 }, 0.22)
+    tl.to('.mobile-msg-2', { opacity: 1, duration: 0.12 }, 0.28)
+
+    // 30–55 %: skeletons desaparecen, iconos aparecen
+    tl.to('.mobile-skeleton', {
+      opacity: 0, scale: 0.80,
+      stagger: { each: 0.022, from: 'random' },
+      duration: 0.28, ease: 'power2.in',
+    }, 0.32)
+    tl.to('.mobile-icon-content', {
+      opacity: 1,
+      stagger: { each: 0.022, from: 'random' },
+      duration: 0.30, ease: 'power2.out',
+    }, 0.44)
+
+    // 60–68 %: msg2 → msg3
+    tl.to('.mobile-msg-2', { opacity: 0, duration: 0.10 }, 0.60)
+    tl.to('.mobile-msg-3', { opacity: 1, duration: 0.12 }, 0.66)
+
+    // 68–100 %: tarjetas se ordenan en la grilla perfecta
+    tl.to('.mobile-icon-card', {
+      x: 0, y: 0, rotation: 0, scale: 1, zIndex: 1,
+      stagger: { each: 0.036, from: 'start' },
+      duration: 0.52, ease: 'power3.out',
+    }, 0.70)
+
+    return () => { tl.kill() }
+  })
 })
 
 onUnmounted(() => {
@@ -543,32 +612,21 @@ onUnmounted(() => {
 }
 
 /* ══ Mobile sticky section ══════════════════════════════════════ */
-.mobile-sticky-wrapper {
-  /* El padre necesita ser más alto que la pantalla para que sticky tenga recorrido */
-  min-height: 220vh;
-  position: relative;
+/* ══ Mobile cards section — GSAP pin maneja el sticky ════════════ */
+.mobile-cards-section {
   background: white;
-}
-
-.mobile-sticky-cards {
-  position: sticky;
-  top: 68px; /* altura exacta del navbar */
-  z-index: 20;
-  background: white;
-  padding: 20px 24px 24px;
+  padding: 20px 20px 24px;
   border-bottom: 1px solid #f1f5f9;
+  /* overflow visible para que tarjetas desordenadas sobresalgan */
+  overflow: visible;
 }
 
 .mobile-icon-card {
   aspect-ratio: 1 / 1;
-  min-height: 60px;
+  min-height: 56px;
   background: white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(148,163,184,0.12);
-}
-
-.mobile-sticky-spacer {
-  /* Espacio de scroll que "consume" el sticky — ajustar según cuánto se quiere que dure */
-  height: 120vh;
+  will-change: transform;
 }
 
 /* ── Icon cards ── */
