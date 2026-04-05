@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "X-Tenant": "0a52a034-f0dc-4aaa-aa02-e5c2b23e3712", // <-- Inyección permanente del identificador de la agencia para cada petición
+    "X-Tenant": "2310c96f-5a4e-4bde-8062-839c495b332a", // <-- Inyección permanente del identificador de la agencia para cada petición
   },
 });
 
@@ -79,11 +79,13 @@ export const apiRequest = async (endpoint, options = {}) => {
     if (!error.response) {
       const requestUrl = error.config ? `${API_BASE_URL}/${endpoint}` : endpoint;
       const networkDetail = [
-        `Tipo: ${error.code || 'ERR_NETWORK'}`,
+        `Tipo: ${error.code || "ERR_NETWORK"}`,
         `Mensaje: ${error.message}`,
         `URL: ${requestUrl}`,
         error.config?.method ? `Método: ${error.config.method.toUpperCase()}` : null,
-      ].filter(Boolean).join(' | ');
+      ]
+        .filter(Boolean)
+        .join(" | ");
 
       return {
         success: false,
