@@ -40,7 +40,7 @@
     </header>
 
     <!-- ══════════════════════ HERO ══════════════════════ -->
-    <section ref="heroRef" class="hero-section relative min-h-screen flex items-center">
+    <section ref="heroRef" class="hero-section relative lg:min-h-screen lg:flex lg:items-center">
 
       <!-- Background -->
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -55,8 +55,8 @@
       </div>
 
       <!-- Content -->
-      <div class="relative z-10 max-w-7xl mx-auto px-6 xl:px-10 w-full pt-24 pb-16">
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-10 xl:gap-20 items-center">
+      <div class="relative z-10 max-w-7xl mx-auto px-6 xl:px-10 w-full py-16 lg:pt-24 lg:pb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-10 xl:gap-20 lg:items-center">
 
           <!-- ── Left: Copy ── -->
           <div class="hero-left">
@@ -110,7 +110,7 @@
           </div>
 
           <!-- ── Right: Animated visual ── -->
-          <div ref="heroVisualRef" class="hero-visual relative lg:static lg:sticky-none" :class="isMobile ? 'sticky top-[68px] h-screen flex items-center' : ''">
+          <div ref="heroVisualRef" class="hero-visual relative">
 
             <!-- Surrounding card glow -->
             <div class="visual-bg-glow absolute inset-0 rounded-3xl pointer-events-none -z-0"
@@ -172,14 +172,54 @@
         </div>
       </div>
 
-      <!-- Scroll indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 pointer-events-none">
+      <!-- Mobile-only sticky cards section -->
+      <div v-if="isMobile" ref="mobileCardsRef" class="lg:hidden relative bg-white py-20">
+        <div class="max-w-7xl mx-auto px-6 w-full">
+          <div class="sticky top-[68px] z-20 pb-8">
+            <div class="grid grid-cols-4 gap-2.5">
+              <div
+                v-for="(icon, i) in ICONS"
+                :key="i"
+                class="icon-card relative rounded-2xl overflow-hidden border border-slate-100"
+              >
+                <div class="skeleton-overlay absolute inset-0 flex items-center justify-center rounded-2xl"
+                  :style="{ background: hexToRgba(icon.color, 0.06) }">
+                  <div class="skel-blob rounded-xl" :style="{ background: hexToRgba(icon.color, 0.18) }"></div>
+                </div>
+                <div class="icon-content absolute inset-0 flex flex-col items-center justify-center gap-1 p-2 bg-white">
+                  <div class="icon-glyph rounded-xl flex items-center justify-center flex-shrink-0"
+                    :style="{ background: hexToRgba(icon.color, 0.1) }">
+                    <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                      :style="{ stroke: icon.color }">
+                      <path v-for="p in icon.paths" :key="p" :d="p"/>
+                    </svg>
+                  </div>
+                  <span class="text-[9px] font-medium text-slate-400 leading-tight text-center truncate w-full px-1">
+                    {{ icon.name }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="h-96"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mobile: Show copy after cards section if needed -->
+    <div v-if="isMobile" class="lg:hidden bg-white py-12">
+      <div class="max-w-7xl mx-auto px-6">
+        <p class="text-slate-500 text-center text-sm">Scroll up para ver la librería</p>
+      </div>
+    </div>
+
+      <!-- Desktop Scroll indicator -->
+      <div v-if="!isMobile" class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 pointer-events-none">
         <span class="text-[10px] font-semibold tracking-widest uppercase text-slate-300">Scroll</span>
         <div class="scroll-track w-[18px] h-7 rounded-full border-2 border-slate-200 flex items-start justify-center pt-1.5">
           <div class="scroll-dot w-1 h-1.5 rounded-full bg-slate-400"></div>
         </div>
       </div>
-    </section>
 
     <!-- ══════════════════════ FEATURES ══════════════════════ -->
     <section id="features" class="py-24 xl:py-32 bg-slate-50">
