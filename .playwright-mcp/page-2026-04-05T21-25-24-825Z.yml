@@ -1,0 +1,143 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "aiconic." [ref=e6] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e8]
+          - generic [ref=e10]: aiconic.
+        - link "Comenzar gratis" [ref=e17] [cursor=pointer]:
+          - /url: "#/login"
+          - text: Comenzar gratis
+          - img [ref=e18]
+    - generic [ref=e24]:
+      - generic [ref=e26]: Motor de iconografía inteligente
+      - heading "Tu librería de íconos, perfectamente organizada." [level=1] [ref=e28]:
+        - text: Tu librería
+        - text: de íconos,
+        - generic [ref=e29]:
+          - text: perfectamente
+          - text: organizada.
+      - paragraph [ref=e30]: Aiconic analiza, clasifica y hace accesible cada ícono de tu sistema de diseño. Sin caos, sin pérdida de tiempo.
+      - generic [ref=e31]:
+        - link "Comenzar gratis" [ref=e32] [cursor=pointer]:
+          - /url: "#/login"
+          - text: Comenzar gratis
+          - img [ref=e33]
+        - button "Ver demo" [ref=e35] [cursor=pointer]:
+          - img [ref=e36]
+          - text: Ver demo
+      - paragraph [ref=e45]:
+        - strong [ref=e46]: +200 equipos
+        - text: ya usan Aiconic
+    - generic [ref=e391]:
+      - paragraph [ref=e392]: Tu librería organizada
+      - generic [ref=e393]:
+        - generic [ref=e395]:
+          - img [ref=e397]
+          - generic [ref=e399]: Buscar
+        - generic [ref=e401]:
+          - img [ref=e403]
+          - generic [ref=e405]: Carpeta
+        - generic [ref=e407]:
+          - img [ref=e409]
+          - generic [ref=e411]: Favorito
+        - generic [ref=e413]:
+          - img [ref=e415]
+          - generic [ref=e417]: Me gusta
+        - generic [ref=e419]:
+          - img [ref=e421]
+          - generic [ref=e423]: Usuario
+        - generic [ref=e425]:
+          - img [ref=e427]
+          - generic [ref=e430]: Config.
+        - generic [ref=e432]:
+          - img [ref=e434]
+          - generic [ref=e436]: Alerta
+        - generic [ref=e438]:
+          - img [ref=e440]
+          - generic [ref=e442]: Gráfico
+        - generic [ref=e444]:
+          - img [ref=e446]
+          - generic [ref=e448]: Seguro
+        - generic [ref=e450]:
+          - img [ref=e452]
+          - generic [ref=e454]: Diseño
+        - generic [ref=e456]:
+          - img [ref=e458]
+          - generic [ref=e460]: Etiqueta
+        - generic [ref=e462]:
+          - img [ref=e464]
+          - generic [ref=e466]: Nube
+        - generic [ref=e468]:
+          - img [ref=e470]
+          - generic [ref=e472]: Editar
+        - generic [ref=e474]:
+          - img [ref=e476]
+          - generic [ref=e478]: Imagen
+        - generic [ref=e480]:
+          - img [ref=e482]
+          - generic [ref=e484]: Capas
+        - generic [ref=e486]:
+          - img [ref=e488]
+          - generic [ref=e490]: Rayo
+    - generic [ref=e179]:
+      - generic [ref=e492]:
+        - paragraph [ref=e493]: Características
+        - heading "Todo lo que necesitas para gestionar tus íconos" [level=2] [ref=e494]:
+          - text: Todo lo que necesitas
+          - text: para gestionar tus íconos
+        - paragraph [ref=e495]: Una plataforma completa que transforma el caos visual en una librería perfectamente estructurada.
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - img [ref=e187]
+          - heading "Clasificación inteligente" [level=3] [ref=e189]
+          - paragraph [ref=e190]: Nuestro motor analiza automáticamente cada ícono y lo clasifica por categoría, estilo y contexto de uso. Cero trabajo manual.
+        - generic [ref=e191]:
+          - img [ref=e193]
+          - heading "Búsqueda semántica" [level=3] [ref=e195]
+          - paragraph [ref=e196]: Encuentra cualquier ícono describiendo lo que necesitas en lenguaje natural. La IA entiende el contexto y el significado.
+        - generic [ref=e197]:
+          - img [ref=e199]
+          - heading "Librería colaborativa" [level=3] [ref=e201]
+          - paragraph [ref=e202]: Comparte, organiza y exporta íconos con tu equipo en tiempo real. Control de versiones y permisos incluidos.
+    - generic [ref=e204]:
+      - paragraph [ref=e205]: Métricas de confianza
+      - generic [ref=e206]:
+        - generic [ref=e207]:
+          - generic [ref=e208]: 99%
+          - generic [ref=e209]: Tiempo de actividad garantizado
+        - generic [ref=e211]:
+          - generic [ref=e212]: 200+
+          - generic [ref=e213]: Equipos de diseño globales
+        - generic [ref=e215]:
+          - generic [ref=e216]: 10×
+          - generic [ref=e217]: Más rápido que búsqueda manual
+    - generic [ref=e222]:
+      - paragraph [ref=e223]: Empieza hoy
+      - heading "¿Listo para organizar tu universo de íconos?" [level=2] [ref=e224]:
+        - text: ¿Listo para organizar
+        - text: tu universo de íconos?
+      - paragraph [ref=e225]: Únete a +200 equipos que ya ahorraron horas de trabajo con Aiconic.
+      - generic [ref=e226]:
+        - link "Comenzar gratis — sin tarjeta" [ref=e227] [cursor=pointer]:
+          - /url: "#/login"
+        - button "Ver planes y precios" [ref=e228]
+    - contentinfo [ref=e229]:
+      - generic [ref=e230]:
+        - generic [ref=e496]:
+          - img [ref=e498]
+          - generic [ref=e500]: aiconic.
+        - paragraph [ref=e236]: © 2026 Aiconic. Todos los derechos reservados.
+        - generic [ref=e237]:
+          - link "Privacidad" [ref=e238] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e239] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e240] [cursor=pointer]:
+            - /url: "#"
+  - generic [ref=e241]:
+    - generic "Toggle devtools panel" [ref=e242] [cursor=pointer]:
+      - img [ref=e243]
+    - generic "Toggle Component Inspector" [ref=e248] [cursor=pointer]:
+      - img [ref=e249]
