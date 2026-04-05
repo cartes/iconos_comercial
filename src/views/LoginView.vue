@@ -15,8 +15,11 @@
                 </p>
             </div>
 
-            <div v-if="error" class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 dark:border-red-500/30 rounded-lg p-3.5 mb-6 text-sm text-center">
-                {{ error }}
+            <div v-if="error" class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 dark:border-red-500/30 rounded-lg p-3.5 mb-6 text-sm">
+                <p class="font-semibold text-center mb-1">{{ error }}</p>
+                <div v-if="errorDebug" class="mt-2 border-t border-red-500/20 pt-2">
+                    <p class="font-mono text-xs break-all whitespace-pre-wrap opacity-80">{{ errorDebug }}</p>
+                </div>
             </div>
 
             <form @submit.prevent="handleSubmit" class="flex flex-col">
@@ -57,6 +60,7 @@ const authStore = useAuthStore();
 const needsBootstrap = ref(false);
 const loading = ref(false);
 const error = ref(null);
+const errorDebug = ref(null);
 
 const form = reactive({
     email: '',
@@ -70,9 +74,18 @@ const claveMismatched = computed(() => {
 });
 
 onMounted(async () => {
-    const status = await authStore.checkBootstrap();
-    if (status.necesitaBootstrap) {
-        needsBootstrap.value = true;
+    try {
+        const status = await authStore.checkBootstrap();
+        if (status.necesitaBootstrap) {
+            needsBootstrap.value = true;
+        }
+        if (!status.success && status.error) {
+            error.value = `Error al conectar con el servidor: ${status.error}`;
+            errorDebug.value = status.debug ? JSON.stringify(status.debug, null, 2) : null;
+        }
+    } catch (e) {
+        error.value = 'Error inesperado al verificar estado del servidor';
+        errorDebug.value = e?.message || String(e);
     }
 });
 
@@ -81,6 +94,7 @@ const handleSubmit = async () => {
 
     loading.value = true;
     error.value = null;
+    errorDebug.value = null;
 
     try {
         if (needsBootstrap.value) {
@@ -95,8 +109,10 @@ const handleSubmit = async () => {
             if (res.success) {
                 needsBootstrap.value = false;
                 error.value = '✓ Admin creado. Inicia sesión.';
+                errorDebug.value = null;
             } else {
                 error.value = res.error;
+                errorDebug.value = res.debug ? JSON.stringify(res.debug, null, 2) : null;
             }
         } else {
             const res = await authStore.login(form.email, form.clave);
@@ -111,10 +127,12 @@ const handleSubmit = async () => {
                 }
             } else {
                 error.value = res.error;
+                errorDebug.value = res.debug ? JSON.stringify(res.debug, null, 2) : null;
             }
         }
-    } catch {
-        error.value = 'Error de conexión';
+    } catch (e) {
+        error.value = 'Error de conexión inesperado';
+        errorDebug.value = e?.message || String(e);
     } finally {
         loading.value = false;
     }

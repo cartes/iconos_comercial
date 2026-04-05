@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 const API_BASE_URL = "https://apiiconos-production.up.railway.app/api"; //import.meta.env.VITE_API_URL || "http://localhost:8004/api";
 
@@ -7,8 +7,8 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "X-Tenant": "1" // <-- Inyección permanente del identificador de la agencia para cada petición
-  }
+    "X-Tenant": "0a52a034-f0dc-4aaa-aa02-e5c2b23e3712", // <-- Inyección permanente del identificador de la agencia para cada petición
+  },
 });
 
 // Interceptor de peticiones para agregar el token dinámico
@@ -20,7 +20,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Mantenemos la función original para no romper ninguna llamada en otras partes del código
@@ -57,7 +57,11 @@ export const apiRequest = async (endpoint, options = {}) => {
 
     // 403 — Sin permisos
     if (status === 403) {
-      return { success: false, error: "No tienes permisos para realizar esta acción.", forbidden: true };
+      return {
+        success: false,
+        error: "No tienes permisos para realizar esta acción.",
+        forbidden: true,
+      };
     }
 
     // 422 — Errores de validación de Laravel: propagar los errors por campo
@@ -71,14 +75,45 @@ export const apiRequest = async (endpoint, options = {}) => {
       };
     }
 
-    const errorMessage = data?.error || data?.message || error.message || `Error del servidor (${status})`;
+    // Network Error (sin respuesta del servidor): CORS, server caído, sin conectividad
+    if (!error.response) {
+      const requestUrl = error.config ? `${API_BASE_URL}/${endpoint}` : endpoint;
+      const networkDetail = [
+        `Tipo: ${error.code || 'ERR_NETWORK'}`,
+        `Mensaje: ${error.message}`,
+        `URL: ${requestUrl}`,
+        error.config?.method ? `Método: ${error.config.method.toUpperCase()}` : null,
+      ].filter(Boolean).join(' | ');
 
-    return { success: false, error: errorMessage };
+      return {
+        success: false,
+        error: `Sin respuesta del servidor — ${networkDetail}`,
+        isNetworkError: true,
+        debug: {
+          code: error.code,
+          message: error.message,
+          url: requestUrl,
+          method: error.config?.method,
+        },
+      };
+    }
+
+    const errorMessage =
+      data?.error || data?.message || error.message || `Error del servidor (${status})`;
+
+    return {
+      success: false,
+      error: errorMessage,
+      debug: {
+        status,
+        url: `${API_BASE_URL}/${endpoint}`,
+        responseData: data,
+      },
+    };
   }
 };
 
 // ── Dashboard de métricas ───────────────────────────────────────────
-export const getDashboardStats = () => apiRequest('/dashboard');
+export const getDashboardStats = () => apiRequest("/dashboard");
 
-export const trackIconClick = (iconId) =>
-  apiRequest(`/iconos/${iconId}/click`, { method: 'POST' });
+export const trackIconClick = (iconId) => apiRequest(`/iconos/${iconId}/click`, { method: "POST" });

@@ -43,7 +43,7 @@ export const useAuthStore = defineStore("auth", {
         return { success: true };
       } else {
         this.error = res.error || "Credenciales inválidas";
-        return { success: false, error: this.error };
+        return { success: false, error: this.error, debug: res.debug };
       }
     },
 
