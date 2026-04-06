@@ -59,11 +59,6 @@ const router = createRouter({
           component: () => import("../views/superadmin/Configuracion.vue"),
         },
         {
-          path: "api-keys",
-          name: "super-api-keys",
-          component: () => import("../views/superadmin/ApiKeys.vue"),
-        },
-        {
           path: "seguridad",
           name: "super-seguridad",
           component: () => import("../views/superadmin/CambioPassword.vue"),

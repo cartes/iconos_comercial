@@ -182,13 +182,6 @@ const navItems = [
     </svg>`,
   },
   {
-    to: '/super-admin/api-keys',
-    label: 'API Keys',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1rem;height:1rem">
-      <path d="M21 2l-2 2M3 21l2-2m4.5-12.5l2 2m4.5 4.5l2 2M15 3h6v6M9 21H3v-6"/><circle cx="12" cy="12" r="3"/>
-    </svg>`,
-  },
-  {
     to: '/super-admin/seguridad',
     label: 'Seguridad',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1rem;height:1rem">
