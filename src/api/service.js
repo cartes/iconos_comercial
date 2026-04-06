@@ -7,17 +7,27 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "X-Tenant": "2310c96f-5a4e-4bde-8062-839c495b332a", // <-- Inyección permanente del identificador de la agencia para cada petición
   },
 });
 
-// Interceptor de peticiones para agregar el token dinámico
+// Interceptor de peticiones para agregar el token dinámico y el Tenant ID
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("auth_token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
+
+    // Inyectar el Tenant ID desde la sesión del usuario si está disponible
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user?.tenantId) {
+        config.headers["X-Tenant"] = user.tenantId;
+      }
+    } catch {
+      // Silencioso: Fallback si no hay usuario o el JSON es inválido
+    }
+
     return config;
   },
   (error) => Promise.reject(error),
