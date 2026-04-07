@@ -25,6 +25,7 @@ export const useAuthStore = defineStore("auth", {
           empresa: res.usuario.empresaNombre || res.usuario.empresa,
           empresaId: res.usuario.empresaId,
           tenantId: res.usuario.tenantId,
+          tenant_slug: res.usuario.tenant_slug,
           puedeEliminar: res.usuario.puedeEliminar !== false,
         };
 

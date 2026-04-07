@@ -65,30 +65,42 @@ const router = createRouter({
         },
       ],
     },
-    // ── Admin de Tenant ─────────────────────────────────────────────
+    // ── Rutas de Agencia (Multi-tenant) ────────────────────────────
     {
-      path: "/admin",
-      name: "admin",
-      component: () => import("../views/AdminDashboard.vue"),
-      meta: { requiresAuth: true, role: "admin" },
+      path: "/agencia/:tenant",
+      children: [
+        {
+          path: "admin",
+          name: "admin",
+          component: () => import("../views/AdminDashboard.vue"),
+          meta: { requiresAuth: true, role: "admin" },
+        },
+        {
+          path: "admin/explore/:id/:nombre",
+          name: "admin-explore",
+          component: () => import("../views/AdminExplorer.vue"),
+          meta: { requiresAuth: true, role: "admin" },
+        },
+        {
+          path: "portal",
+          name: "portal",
+          component: () => import("../views/UserPortal.vue"),
+          meta: { requiresAuth: true, role: "usuario" },
+        },
+        {
+          path: "perfil",
+          name: "perfil-agencia",
+          component: () => import("../views/MiPerfil.vue"),
+          meta: { requiresAuth: true },
+        },
+      ],
     },
-    {
-      path: "/admin/explore/:id/:nombre",
-      name: "admin-explore",
-      component: () => import("../views/AdminExplorer.vue"),
-      meta: { requiresAuth: true, role: "admin" },
-    },
+    // ── Rutas Globales ──────────────────────────────────────────────
     {
       path: "/perfil",
       name: "perfil",
       component: () => import("../views/MiPerfil.vue"),
       meta: { requiresAuth: true },
-    },
-    {
-      path: "/portal",
-      name: "portal",
-      component: () => import("../views/UserPortal.vue"),
-      meta: { requiresAuth: true, role: "usuario" },
     },
   ],
 });
@@ -96,25 +108,39 @@ const router = createRouter({
 router.beforeEach((to, _from) => {
   const auth = useAuthStore();
 
+  // Si requiere auth y no está autenticado, al login
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return "/login";
-  } else if (to.path === "/login" && auth.isAuthenticated) {
+  }
+
+  // Redirección inteligente al loguearse o intentar ir a login ya estando logueado
+  if (to.path === "/login" && auth.isAuthenticated) {
     if (auth.user.rol === "super-admin") {
       return "/super-admin/dashboard";
-    } else if (auth.user.rol === "admin") {
-      return "/admin";
-    } else {
-      return "/portal";
     }
-  } else if (to.meta.role) {
+
+    // Para usuarios de agencia, necesitamos su tenant slug
+    const tenantSlug = auth.user.tenant?.slug || auth.user.tenant_slug || "default";
+
+    if (auth.user.rol === "admin") {
+      return `/agencia/${tenantSlug}/admin`;
+    } else {
+      return `/agencia/${tenantSlug}/portal`;
+    }
+  }
+
+  // Validación de roles
+  if (to.meta.role) {
     const isAllowed =
       auth.user?.rol === to.meta.role ||
       (to.meta.role === "admin" && auth.user?.rol === "super-admin");
 
     if (!isAllowed) {
       if (auth.user?.rol === "super-admin") return "/super-admin/dashboard";
-      if (auth.user?.rol === "admin") return "/admin";
-      return "/portal";
+
+      const tenantSlug = auth.user.tenant?.slug || auth.user.tenant_slug || "default";
+      if (auth.user?.rol === "admin") return `/agencia/${tenantSlug}/admin`;
+      return `/agencia/${tenantSlug}/portal`;
     }
   }
 

@@ -1,6 +1,8 @@
 import axios from "axios";
+import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
 
-const API_BASE_URL = "https://apiiconos-production.up.railway.app/api"; //import.meta.env.VITE_API_URL || "http://localhost:8004/api";
+const API_BASE_URL = "https://apiiconos-production.up.railway.app/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,7 +12,7 @@ const api = axios.create({
   },
 });
 
-// Interceptor de peticiones para agregar el token dinámico y el Tenant ID
+// Interceptor de peticiones para agregar el token dinámico y el Tenant (slug) en la URL
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("auth_token");
@@ -18,19 +20,44 @@ api.interceptors.request.use(
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // Inyectar el Tenant ID desde la sesión del usuario si está disponible
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user?.tenantId) {
-        config.headers["X-Tenant"] = user.tenantId;
-      }
-    } catch {
-      // Silencioso: Fallback si no hay usuario o el JSON es inválido
+    // Obtener el tenant desde los parámetros de la ruta activa de Vue Router
+    const tenantSlug = router.currentRoute.value?.params?.tenant;
+
+    // Si hay un tenant en la ruta y no es una ruta global omitida, lo inyectamos en la URL
+    // Evitamos duplicar si ya viene en la URL o si es una ruta central
+    const isGlobalRoute =
+      config.url.startsWith("/login") || config.url.startsWith("login") ||
+      config.url.startsWith("/estado") || config.url.startsWith("estado") ||
+      config.url.startsWith("/super-admin") || config.url.startsWith("super-admin") ||
+      config.url.startsWith("/me") || config.url.startsWith("me");
+
+    if (tenantSlug && !isGlobalRoute && !config.url.includes(`/${tenantSlug}/`)) {
+      // Limpiar slash inicial si existe para evitar doble slash
+      const cleanUrl = config.url.startsWith("/") ? config.url.substring(1) : config.url;
+      config.url = `/${tenantSlug}/${cleanUrl}`;
     }
 
     return config;
   },
   (error) => Promise.reject(error),
+);
+
+// Interceptor de respuestas: captura 401 global para limpiar sesión y redirigir
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || "";
+
+    // Ignorar 401 del propio endpoint de login (credenciales incorrectas)
+    if (status === 401 && !requestUrl.includes("login")) {
+      const authStore = useAuthStore();
+      authStore.logout();
+      window.location.hash = "#/login";
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 // Mantenemos la función original para no romper ninguna llamada en otras partes del código
@@ -56,14 +83,6 @@ export const apiRequest = async (endpoint, options = {}) => {
 
     const status = error.response ? error.response.status : null;
     const data = error.response ? error.response.data : null;
-
-    // 401 — Sesión expirada
-    if (status === 401 && endpoint !== "login") {
-      localStorage.removeItem("user");
-      localStorage.removeItem("auth_token");
-      window.location.hash = "#/login";
-      return { success: false, error: "Sesión expirada o token inválido" };
-    }
 
     // 403 — Sin permisos
     if (status === 403) {
