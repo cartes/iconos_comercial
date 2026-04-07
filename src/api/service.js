@@ -20,21 +20,29 @@ api.interceptors.request.use(
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // Obtener el tenant desde los parámetros de la ruta activa de Vue Router
-    const tenantSlug = router.currentRoute.value?.params?.tenant;
+    // 1. Detección robusta del tenant slug (desde URL o Store)
+    const routerTenant = router.currentRoute.value?.params?.tenant;
+    const sessionUser = JSON.parse(localStorage.getItem("user") || "null");
+    const tenantSlug = routerTenant || sessionUser?.tenant_slug;
 
-    // Si hay un tenant en la ruta y no es una ruta global omitida, lo inyectamos en la URL
-    // Evitamos duplicar si ya viene en la URL o si es una ruta central
+    // 2. Definición de rutas globales (No requieren prefijo {tenant})
+    // Normalizamos la URL quitando slash principal
+    const normalizedUrl = config.url.replace(/^\//, "");
     const isGlobalRoute =
-      config.url.startsWith("/login") || config.url.startsWith("login") ||
-      config.url.startsWith("/estado") || config.url.startsWith("estado") ||
-      config.url.startsWith("/super-admin") || config.url.startsWith("super-admin") ||
-      config.url.startsWith("/me") || config.url.startsWith("me");
+      normalizedUrl.startsWith("login") ||
+      normalizedUrl.startsWith("estado") ||
+      normalizedUrl.startsWith("super-admin") ||
+      normalizedUrl.startsWith("me") ||
+      normalizedUrl.startsWith("primer-admin");
 
-    if (tenantSlug && !isGlobalRoute && !config.url.includes(`/${tenantSlug}/`)) {
-      // Limpiar slash inicial si existe para evitar doble slash
-      const cleanUrl = config.url.startsWith("/") ? config.url.substring(1) : config.url;
-      config.url = `/${tenantSlug}/${cleanUrl}`;
+    // 3. Inyección del prefijo /{tenant}/
+    if (tenantSlug && !isGlobalRoute) {
+      // Evitar duplicación si la URL ya contiene el prefijo /{tenant}/
+      const hasPrefix = config.url.includes(`/${tenantSlug}/`) || config.url.startsWith(`${tenantSlug}/`);
+      
+      if (!hasPrefix) {
+        config.url = `/${tenantSlug}/${normalizedUrl}`;
+      }
     }
 
     return config;
