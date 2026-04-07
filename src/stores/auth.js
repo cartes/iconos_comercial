@@ -10,6 +10,19 @@ export const useAuthStore = defineStore("auth", {
     error: null,
   }),
 
+  getters: {
+    homePath: (state) => {
+      if (!state.user) return "/login";
+      if (state.user.rol === "super-admin") return "/super-admin/dashboard";
+
+      const slug = state.user.tenant_slug || "default";
+      if (state.user.rol === "admin") {
+        return `/agencia/${slug}/admin`;
+      }
+      return `/agencia/${slug}/portal`;
+    },
+  },
+
   actions: {
     async login(email, clave) {
       this.loading = true;

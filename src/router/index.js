@@ -113,20 +113,10 @@ router.beforeEach((to, _from) => {
     return "/login";
   }
 
-  // Redirección inteligente al loguearse o intentar ir a login ya estando logueado
-  if (to.path === "/login" && auth.isAuthenticated) {
-    if (auth.user.rol === "super-admin") {
-      return "/super-admin/dashboard";
-    }
-
-    // Para usuarios de agencia, necesitamos su tenant slug
-    const tenantSlug = auth.user.tenant?.slug || auth.user.tenant_slug || "default";
-
-    if (auth.user.rol === "admin") {
-      return `/agencia/${tenantSlug}/admin`;
-    } else {
-      return `/agencia/${tenantSlug}/portal`;
-    }
+  // Redirección inteligente al loguearse o intentar ir a rutas raíz/obsoletas
+  const legacyPaths = ["/", "/login", "/admin", "/portal"];
+  if (auth.isAuthenticated && legacyPaths.includes(to.path)) {
+    return auth.homePath;
   }
 
   // Validación de roles
