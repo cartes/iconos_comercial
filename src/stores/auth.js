@@ -15,7 +15,7 @@ export const useAuthStore = defineStore("auth", {
       if (!state.user) return "/login";
       if (state.user?.rol === "super-admin") return "/super-admin/dashboard";
 
-      const slug = state.user?.tenant_slug || "default";
+      const slug = state.user?.tenant_slug || state.user?.tenantId || "default";
       if (state.user?.rol === "admin") {
         return `/agencia/${slug}/admin`;
       }
