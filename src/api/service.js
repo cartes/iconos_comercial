@@ -33,7 +33,8 @@ api.interceptors.request.use(
       normalizedUrl.startsWith("estado") ||
       normalizedUrl.startsWith("super-admin") ||
       normalizedUrl.startsWith("me") ||
-      normalizedUrl.startsWith("primer-admin");
+      normalizedUrl.startsWith("primer-admin") ||
+      normalizedUrl.startsWith("invitar"); // Rutas públicas de invitaciones (sin prefijo tenant)
 
     // 3. Inyección del prefijo /{tenant}/
     if (tenantSlug && !isGlobalRoute) {

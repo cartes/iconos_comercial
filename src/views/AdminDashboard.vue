@@ -40,13 +40,14 @@
       <main class="p-5 md:p-8 flex-grow flex flex-col overflow-hidden">
         <!-- Tabs -->
         <div class="flex gap-4 mb-8 border-b border-slate-200 dark:border-slate-800 transition-colors">
-          <button v-for="tab in ['dashboard', 'empresas', 'usuarios']" :key="tab"
+          <button v-for="tab in ['dashboard', 'empresas', 'usuarios', 'invitaciones']" :key="tab"
             :class="['px-6 py-4 font-semibold text-sm transition-all border-b-2 capitalize flex items-center gap-2', 
                     activeTab === tab ? 'text-primary-600 border-primary-600 dark:text-primary-400 dark:border-primary-400 bg-slate-50 dark:bg-slate-800/50 rounded-t-lg' : 'text-slate-400 border-transparent hover:text-primary-500 hover:bg-slate-50/50 dark:hover:bg-slate-800/30']"
-            @click="activeTab = tab">
+            @click="onTabChange(tab)">
             <svg v-if="tab === 'dashboard'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-4" /></svg>
             <svg v-if="tab === 'empresas'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" /></svg>
             <svg v-if="tab === 'usuarios'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
+            <svg v-if="tab === 'invitaciones'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             {{ tab }}
           </button>
         </div>
@@ -272,6 +273,108 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Invitaciones Tab -->
+            <div v-else-if="activeTab === 'invitaciones'" class="flex flex-col gap-6">
+                <!-- Send invitation form -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        Invitar nuevo miembro
+                    </h2>
+                    <form @submit.prevent="sendInvite" class="flex flex-col sm:flex-row gap-3">
+                        <input
+                            v-model="inviteForm.email"
+                            type="email"
+                            placeholder="correo@ejemplo.com"
+                            required
+                            class="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                        />
+                        <select
+                            v-model="inviteForm.rol"
+                            class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all min-w-[140px]"
+                        >
+                            <option value="usuario">Usuario</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <button
+                            type="submit"
+                            :disabled="inviteStore.sending"
+                            class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-lg text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-60 whitespace-nowrap"
+                        >
+                            <div v-if="inviteStore.sending" class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
+                            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Enviar invitación
+                        </button>
+                    </form>
+                    <p v-if="inviteSuccess" class="mt-3 text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-1.5">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        {{ inviteSuccess }}
+                    </p>
+                    <p v-if="inviteError" class="mt-3 text-sm text-red-500 font-medium">{{ inviteError }}</p>
+                </div>
+
+                <!-- Invitations list -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Invitaciones enviadas</h3>
+                        <span class="text-xs text-slate-400 font-medium">{{ inviteStore.invitations.length }} total</span>
+                    </div>
+                    <div v-if="inviteStore.loading" class="p-8 flex justify-center">
+                        <div class="w-6 h-6 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+                    </div>
+                    <div v-else class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Email</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Rol</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Estado</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Enviada por</th>
+                                    <th class="p-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-center w-[80px]">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr v-for="inv in inviteStore.invitations" :key="inv.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4 font-mono text-sm text-slate-700 dark:text-slate-200">{{ inv.email }}</td>
+                                    <td class="p-4">
+                                        <span :class="[
+                                            'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter',
+                                            inv.rol === 'admin' ? 'bg-red-500 text-white' :
+                                            inv.rol === 'editor' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
+                                        ]">{{ inv.rol }}</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span :class="[
+                                            'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter',
+                                            inv.status === 'pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                            inv.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                            'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                                        ]">{{ inv.status === 'pending' ? 'Pendiente' : inv.status === 'accepted' ? 'Aceptada' : 'Expirada' }}</span>
+                                    </td>
+                                    <td class="p-4 text-xs text-slate-500 dark:text-slate-400">{{ inv.invited_by || '—' }}</td>
+                                    <td class="p-4">
+                                        <div class="flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                v-if="inv.status === 'pending'"
+                                                @click="cancelInvitation(inv)"
+                                                class="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-lg border border-red-500/20 transition-all"
+                                                title="Cancelar invitación"
+                                            >
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr v-if="inviteStore.invitations.length === 0">
+                                    <td colspan="5" class="p-10 text-center text-slate-400 italic text-sm">No hay invitaciones enviadas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
       </main>
     </div>
@@ -333,9 +436,11 @@ import BaseModal from '@/components/BaseModal.vue';
 import DashboardMetrics from '@/components/DashboardMetrics.vue';
 import PerfilSlideover from '@/components/PerfilSlideover.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useInvitationsStore } from '@/stores/invitations';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const inviteStore = useInvitationsStore();
 const companies = ref([]);
 const users = ref([]);
 const loading = ref(false);
@@ -364,6 +469,35 @@ const nextPage = () => {
 const prevPage = () => {
     if (currentPage.value > 1) currentPage.value--;
 };
+
+// ── Invitaciones ───────────────────────────────────────────────────
+const inviteForm = ref({ email: '', rol: 'usuario' });
+const inviteSuccess = ref('');
+const inviteError = ref('');
+
+function onTabChange(tab) {
+    activeTab.value = tab;
+    if (tab === 'invitaciones') {
+        inviteStore.fetchInvitations();
+    }
+}
+
+async function sendInvite() {
+    inviteSuccess.value = '';
+    inviteError.value = '';
+    const res = await inviteStore.sendInvitation(inviteForm.value.email, inviteForm.value.rol);
+    if (res.success) {
+        inviteSuccess.value = res.mensaje;
+        inviteForm.value.email = '';
+    } else {
+        inviteError.value = res.error;
+    }
+}
+
+async function cancelInvitation(inv) {
+    if (!confirm(`¿Cancelar la invitación para ${inv.email}?`)) return;
+    await inviteStore.cancelInvitation(inv.id);
+}
 
 const showAddCompanyModal = ref(false);
 const showAddUserModal = ref(false);

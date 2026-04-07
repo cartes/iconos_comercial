@@ -102,11 +102,21 @@ const router = createRouter({
       component: () => import("../views/MiPerfil.vue"),
       meta: { requiresAuth: true },
     },
+    // ── Invitaciones (ruta pública) ─────────────────────────────────
+    {
+      path: "/invitacion/:token",
+      name: "accept-invitation",
+      component: () => import("../views/AcceptInvitation.vue"),
+      meta: { requiresAuth: false, public: true },
+    },
   ],
 });
 
 router.beforeEach((to, _from) => {
   const auth = useAuthStore();
+
+  // Rutas marcadas como públicas pasan siempre (ej. aceptar invitación)
+  if (to.meta.public) return true;
 
   // Si requiere auth y no está autenticado, al login
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
