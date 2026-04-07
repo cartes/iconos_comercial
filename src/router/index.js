@@ -128,7 +128,7 @@ router.beforeEach((to, _from) => {
     if (!isAllowed) {
       if (auth.user?.rol === "super-admin") return "/super-admin/dashboard";
 
-      const tenantSlug = auth.user.tenant?.slug || auth.user.tenant_slug || "default";
+      const tenantSlug = auth.user?.tenant?.slug || auth.user?.tenant_slug || "default";
       if (auth.user?.rol === "admin") return `/agencia/${tenantSlug}/admin`;
       return `/agencia/${tenantSlug}/portal`;
     }

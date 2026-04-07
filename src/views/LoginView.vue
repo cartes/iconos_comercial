@@ -117,14 +117,7 @@ const handleSubmit = async () => {
         } else {
             const res = await authStore.login(form.email, form.clave);
             if (res.success) {
-                const rol = authStore.user.rol;
-                if (rol === 'super-admin') {
-                    router.push('/admin/empresas');
-                } else if (rol === 'admin') {
-                    router.push('/admin');
-                } else {
-                    router.push('/portal');
-                }
+                router.push(authStore.homePath);
             } else {
                 error.value = res.error;
                 errorDebug.value = res.debug ? JSON.stringify(res.debug, null, 2) : null;
