@@ -1,8 +1,5 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/api/service";
-import axios from "axios";
-
-const API_BASE = "https://apiiconos-production.up.railway.app/api";
 
 export const useInvitationsStore = defineStore("invitations", {
   state: () => ({
@@ -61,44 +58,33 @@ export const useInvitationsStore = defineStore("invitations", {
       return res;
     },
 
-    /** Public: verify a token — uses direct axios call (no tenant prefix needed). */
+    /** Public: verify a token through the central API route. */
     async verifyToken(token) {
-      try {
-        const res = await axios.get(`${API_BASE}/invitar/${token}`, {
-          headers: { Accept: "application/json" },
-        });
-        return res.data;
-      } catch (error) {
-        const data = error.response?.data;
-        return {
-          success: false,
-          error: data?.error || "La invitación no es válida o ha expirado.",
-        };
-      }
+      const res = await apiRequest(`invitar/${token}`, { skipAuth: true });
+
+      if (res.success !== false) return res;
+
+      return {
+        success: false,
+        error: res.error || "La invitación no es válida o ha expirado.",
+      };
     },
 
-    /** Public: accept an invitation — uses direct axios call (no tenant prefix needed). */
+    /** Public: accept an invitation through the central API route. */
     async acceptInvitation(token, payload = {}) {
-      try {
-        const res = await axios.post(`${API_BASE}/invitar/${token}/aceptar`, payload, {
-          headers: { Accept: "application/json", "Content-Type": "application/json" },
-        });
-        return res.data;
-      } catch (error) {
-        const status = error.response?.status;
-        const data = error.response?.data;
+      const res = await apiRequest(`invitar/${token}/aceptar`, {
+        method: "POST",
+        data: payload,
+        skipAuth: true,
+      });
 
-        if (status === 422 && data?.errors) {
-          const firstField = Object.values(data.errors)[0];
-          const firstMsg = Array.isArray(firstField) ? firstField[0] : firstField;
-          return { success: false, error: firstMsg, errors: data.errors };
-        }
+      if (res.success !== false) return res;
 
-        return {
-          success: false,
-          error: data?.error || "Error al procesar la invitación.",
-        };
-      }
+      return {
+        success: false,
+        error: res.error || "Error al procesar la invitación.",
+        errors: res.errors,
+      };
     },
   },
 });

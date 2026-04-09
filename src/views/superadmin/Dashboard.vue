@@ -61,6 +61,8 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SuperadminDashboardView' });
+
 import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import { RouterLink } from 'vue-router';
 import { apiRequest } from '@/api/service';

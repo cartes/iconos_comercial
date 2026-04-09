@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <Feedback :state="feedback.datos" />
+          <InlineFeedback :state="feedback.datos" />
 
           <div class="flex justify-end">
             <button
@@ -119,7 +119,7 @@
             </div>
           </div>
 
-          <Feedback :state="feedback.password" />
+          <InlineFeedback :state="feedback.password" />
 
           <div class="flex justify-end">
             <button
@@ -164,7 +164,7 @@
         </div>
 
         <div class="p-6">
-          <Feedback :state="feedback.sesiones" />
+          <InlineFeedback :state="feedback.sesiones" />
 
           <!-- Loading sesiones -->
           <div v-if="loading.sesiones" class="flex items-center justify-center py-8 gap-3 text-slate-400">
@@ -363,8 +363,8 @@ onMounted(cargarSesiones);
 <script>
 import { defineComponent, h } from 'vue';
 
-const Feedback = defineComponent({
-  name: 'Feedback',
+const InlineFeedback = defineComponent({
+  name: 'InlineFeedback',
   props: { state: Object },
   setup(props) {
     return () => {
@@ -388,5 +388,5 @@ const Feedback = defineComponent({
   },
 });
 
-export default { components: { Feedback } };
+export default { components: { InlineFeedback } };
 </script>

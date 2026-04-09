@@ -133,6 +133,8 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SuperadminPagosView' });
+
 import { ref, reactive, computed, onMounted } from 'vue';
 import { apiRequest } from '@/api/service';
 import BaseModal from '@/components/BaseModal.vue';

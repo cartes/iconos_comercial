@@ -351,7 +351,7 @@ const guardarEdicionTenant = async () => {
     } else {
       editError.value = res.error || 'No se pudo actualizar la agencia.';
     }
-  } catch (err) {
+  } catch {
     editError.value = 'Error de red. Intenta nuevamente.';
   } finally {
     cargando.value = false;

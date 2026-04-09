@@ -1,8 +1,75 @@
 import axios from "axios";
-import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+import { getStoredTenantSlug, getStoredToken, getStoredUser } from "@/api/session";
 
-const API_BASE_URL = "https://apiiconos-production.up.railway.app/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://apiiconos-production.up.railway.app/api";
+
+const CENTRAL_ROUTE_PREFIXES = ["estado", "primer-admin", "login", "invitar", "super-admin"];
+const PUBLIC_ROUTE_PREFIXES = ["estado", "primer-admin", "login", "invitar"];
+const DUPLICABLE_CONTEXT_PREFIXES = ["me", "logout", "cambiar-clave", "perfil", "tenant-info"];
+
+function normalizeEndpoint(endpoint = "") {
+  return String(endpoint).replace(/^\/+/, "");
+}
+
+function splitEndpoint(endpoint) {
+  const normalized = normalizeEndpoint(endpoint);
+  const [path, query = ""] = normalized.split("?");
+
+  return {
+    path,
+    query: query ? `?${query}` : "",
+  };
+}
+
+function startsWithPrefix(path, prefixes) {
+  return prefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
+function isAlreadyTenantPrefixed(path, tenantSlug) {
+  return Boolean(
+    tenantSlug &&
+      (path === tenantSlug ||
+        path.startsWith(`${tenantSlug}/`) ||
+        path.startsWith(`${tenantSlug}?`)),
+  );
+}
+
+function resolveTenantSlug() {
+  return getStoredTenantSlug();
+}
+
+function resolveRequestPath(endpoint, authToken) {
+  const { path, query } = splitEndpoint(endpoint);
+  const user = getStoredUser();
+  const tenantSlug = resolveTenantSlug();
+  const isSuperAdmin = user?.rol === "super-admin";
+  const isCentralRoute = startsWithPrefix(path, CENTRAL_ROUTE_PREFIXES);
+
+  if (isAlreadyTenantPrefixed(path, tenantSlug)) {
+    return { path: `/${path}${query}`, isPublic: startsWithPrefix(path, PUBLIC_ROUTE_PREFIXES) };
+  }
+
+  if (isCentralRoute) {
+    return { path: `/${path}${query}`, isPublic: startsWithPrefix(path, PUBLIC_ROUTE_PREFIXES) };
+  }
+
+  if (tenantSlug) {
+    return { path: `/${tenantSlug}/${path}${query}`, isPublic: false };
+  }
+
+  if (isSuperAdmin || startsWithPrefix(path, DUPLICABLE_CONTEXT_PREFIXES)) {
+    return { path: `/${path}${query}`, isPublic: false };
+  }
+
+  if (!authToken) {
+    return { path: `/${path}${query}`, isPublic: false };
+  }
+
+  return {
+    error: "No se pudo resolver el tenant de la sesión para construir la ruta de la API.",
+  };
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,48 +79,22 @@ const api = axios.create({
   },
 });
 
-// Interceptor de peticiones para agregar el token dinámico y el Tenant (slug) en la URL
+// Centraliza auth y prefijo tenant. Ningún cliente debe enviar X-Tenant.
 api.interceptors.request.use(
   (config) => {
-    // 2. Definición de rutas globales (No requieren prefijo {tenant})
-    // Normalizamos la URL quitando slash principal
-    const normalizedUrl = config.url.replace(/^\//, "");
-    const isGlobalRoute =
-      normalizedUrl.startsWith("login") ||
-      normalizedUrl.startsWith("logout") ||
-      normalizedUrl.startsWith("estado") ||
-      normalizedUrl.startsWith("super-admin") ||
-      normalizedUrl.startsWith("me") ||
-      normalizedUrl.startsWith("primer-admin") ||
-      normalizedUrl.startsWith("invitar"); // Rutas públicas de invitaciones (sin prefijo tenant)
+    const token = config.authToken ?? getStoredToken();
+    const resolvedPath = resolveRequestPath(config.url, token);
 
-    const isPublicRoute = 
-      normalizedUrl.startsWith("login") || 
-      normalizedUrl.startsWith("estado") || 
-      normalizedUrl.startsWith("primer-admin");
+    if (resolvedPath.error) {
+      return Promise.reject(new Error(resolvedPath.error));
+    }
 
-    const token = localStorage.getItem("auth_token");
-    // No enviar token en peticiones que sirven para iniciar sesión o comprobar estado público
-    if (token && !isPublicRoute) {
+    if (token && !resolvedPath.isPublic && !config.skipAuth) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // 1. Detección robusta del tenant slug (desde URL o Store)
-    const routerTenant = router.currentRoute.value?.params?.tenant;
-    const sessionUser = JSON.parse(localStorage.getItem("user") || "null");
-    const tenantSlug = routerTenant || sessionUser?.tenant_slug;
-
-    // Definición movida arriba para ser usada antes
-
-    // 3. Inyección del prefijo /{tenant}/
-    if (tenantSlug && !isGlobalRoute) {
-      // Evitar duplicación si la URL ya contiene el prefijo /{tenant}/
-      const hasPrefix = config.url.includes(`/${tenantSlug}/`) || config.url.startsWith(`${tenantSlug}/`);
-      
-      if (!hasPrefix) {
-        config.url = `/${tenantSlug}/${normalizedUrl}`;
-      }
-    }
+    delete config.headers["X-Tenant"];
+    config.url = resolvedPath.path;
 
     return config;
   },
@@ -70,7 +111,7 @@ api.interceptors.response.use(
     // Ignorar 401 del propio endpoint de login y logout (para evitar bucles infinitos)
     if (status === 401 && !requestUrl.includes("login") && !requestUrl.includes("logout")) {
       const authStore = useAuthStore();
-      authStore.logout();
+      authStore.clearSession();
       window.location.hash = "#/login";
     }
 
@@ -81,11 +122,23 @@ api.interceptors.response.use(
 // Mantenemos la función original para no romper ninguna llamada en otras partes del código
 export const apiRequest = async (endpoint, options = {}) => {
   try {
+    const authToken = options.authToken ?? getStoredToken();
+    const resolvedPath = resolveRequestPath(endpoint, authToken);
+
+    if (resolvedPath.error) {
+      return {
+        success: false,
+        error: resolvedPath.error,
+      };
+    }
+
     const config = {
       method: options.method || "GET",
-      url: endpoint, // axios resuelve automáticamente con la baseURL
+      url: endpoint,
       headers: options.headers || {},
-      data: options.data, // axios se encarga del JSON.stringify automáticamente
+      data: options.data,
+      authToken,
+      skipAuth: options.skipAuth ?? resolvedPath.isPublic,
     };
 
     const response = await api(config);
@@ -124,7 +177,7 @@ export const apiRequest = async (endpoint, options = {}) => {
 
     // Network Error (sin respuesta del servidor): CORS, server caído, sin conectividad
     if (!error.response) {
-      const requestUrl = error.config ? `${API_BASE_URL}/${endpoint}` : endpoint;
+      const requestUrl = error.config ? `${API_BASE_URL}${error.config.url || ""}` : endpoint;
       const networkDetail = [
         `Tipo: ${error.code || "ERR_NETWORK"}`,
         `Mensaje: ${error.message}`,
@@ -155,7 +208,7 @@ export const apiRequest = async (endpoint, options = {}) => {
       error: errorMessage,
       debug: {
         status,
-        url: `${API_BASE_URL}/${endpoint}`,
+        url: error.config?.url ? `${API_BASE_URL}${error.config.url}` : `${API_BASE_URL}/${normalizeEndpoint(endpoint)}`,
         responseData: data,
       },
     };

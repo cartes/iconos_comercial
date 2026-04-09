@@ -152,6 +152,8 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SuperadminUsuariosView' });
+
 import { ref, computed, onMounted } from 'vue';
 import { apiRequest } from '@/api/service';
 

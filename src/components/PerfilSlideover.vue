@@ -237,7 +237,6 @@ import { useAuthStore } from '@/stores/auth';
 import { actualizarDatos, cambiarPassword, getSesiones, revocarSesion, revocarOtrasSesiones } from '@/api/perfil';
 
 const props = defineProps({ show: Boolean });
-const emit = defineEmits(['close']);
 
 const authStore = useAuthStore();
 

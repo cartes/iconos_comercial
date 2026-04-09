@@ -1,21 +1,36 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/api/service";
+import {
+  clearStoredSession,
+  getStoredTenantName,
+  getStoredTenantSlug,
+  getStoredToken,
+  getStoredUser,
+  persistSession,
+  setStoredTenantName,
+  setStoredTenantSlug,
+  setStoredUser,
+} from "@/api/session";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: JSON.parse(localStorage.getItem("user")) || null,
-    tenantName: localStorage.getItem("tenantName") || null,
-    isAuthenticated: !!localStorage.getItem("user"),
+    user: getStoredUser(),
+    tenantSlug: getStoredTenantSlug(),
+    tenantName: getStoredTenantName(),
+    isAuthenticated: !!getStoredToken(),
     loading: false,
     error: null,
   }),
 
   getters: {
+    sessionTenantSlug: (state) => state.tenantSlug || state.user?.tenant_slug || null,
     homePath: (state) => {
       if (!state.user) return "/login";
       if (state.user?.rol === "super-admin") return "/super-admin/dashboard";
 
-      const slug = state.user?.tenant_slug || state.user?.tenantId || "default";
+      const slug = state.tenantSlug || state.user?.tenant_slug;
+      if (!slug) return "/login";
+
       if (state.user?.rol === "admin") {
         return `/agencia/${slug}/admin`;
       }
@@ -27,54 +42,65 @@ export const useAuthStore = defineStore("auth", {
     async login(email, clave) {
       this.loading = true;
       this.error = null;
+      try {
+        const res = await apiRequest("login", { method: "POST", data: { email, clave } });
 
-      const res = await apiRequest("login", { method: "POST", data: { email, clave } });
+        if (res.success) {
+          const userData = {
+            email: res.usuario.email,
+            nombre: res.usuario.nombre,
+            rol: res.usuario.rol,
+            empresa: res.usuario.empresaNombre || res.usuario.empresa,
+            empresaId: res.usuario.empresaId,
+            tenantId: res.usuario.tenantId,
+            tenant_slug: res.usuario.tenant_slug,
+            puedeEliminar: res.usuario.puedeEliminar !== false,
+          };
 
-      if (res.success) {
-        const userData = {
-          email: res.usuario.email,
-          nombre: res.usuario.nombre,
-          rol: res.usuario.rol,
-          empresa: res.usuario.empresaNombre || res.usuario.empresa,
-          empresaId: res.usuario.empresaId,
-          tenantId: res.usuario.tenantId,
-          tenant_slug: res.usuario.tenant_slug,
-          puedeEliminar: res.usuario.puedeEliminar !== false,
-        };
+          this.user = userData;
+          this.tenantSlug = userData.tenant_slug || null;
+          this.isAuthenticated = true;
+          persistSession({ user: userData, token: res.token, tenantSlug: this.tenantSlug });
 
-        this.user = userData;
-        this.isAuthenticated = true;
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("auth_token", res.token);
-        
-        // Cargar info del tenant inmediatamente tras el login (si no es super-admin)
-        if (userData.rol !== 'super-admin') {
-          await this.fetchTenantInfo();
-        } else {
-          this.tenantName = null;
-          localStorage.removeItem("tenantName");
+          // Las llamadas autenticadas de tenant siempre toman este slug persistido.
+          if (userData.rol !== "super-admin" && this.tenantSlug) {
+            await this.fetchTenantInfo();
+          } else {
+            this.tenantName = null;
+            setStoredTenantName(null);
+          }
+
+          return { success: true };
         }
 
-        return { success: true };
-      } else {
         this.error = res.error || "Credenciales inválidas";
         return { success: false, error: this.error, debug: res.debug };
+      } finally {
+        this.loading = false;
       }
     },
 
-    logout() {
+    clearSession() {
       this.user = null;
+      this.tenantSlug = null;
       this.tenantName = null;
       this.isAuthenticated = false;
-      localStorage.removeItem("user");
-      localStorage.removeItem("tenantName");
-      localStorage.removeItem("auth_token");
-      apiRequest("logout", { method: "POST" }).catch(() => {});
+      clearStoredSession();
+    },
+
+    logout() {
+      const authToken = getStoredToken();
+      if (authToken) {
+        apiRequest("logout", { method: "POST", authToken }).catch(() => {});
+      }
+
+      this.clearSession();
     },
 
     async fetchTenantInfo() {
-      if (this.user?.rol === 'super-admin') {
+      if (this.user?.rol === "super-admin" || !this.sessionTenantSlug) {
         this.tenantName = null;
+        setStoredTenantName(null);
         return;
       }
       
@@ -82,7 +108,7 @@ export const useAuthStore = defineStore("auth", {
         const res = await apiRequest("tenant-info");
         if (res.success) {
           this.tenantName = res.nombre;
-          localStorage.setItem("tenantName", res.nombre);
+          setStoredTenantName(res.nombre);
         }
       } catch (e) {
         console.error("Error al obtener info del tenant:", e);
@@ -92,7 +118,9 @@ export const useAuthStore = defineStore("auth", {
     actualizarPerfil(usuario) {
       const updated = { ...this.user, ...usuario };
       this.user = updated;
-      localStorage.setItem("user", JSON.stringify(updated));
+      this.tenantSlug = updated.tenant_slug || this.tenantSlug;
+      setStoredUser(updated);
+      setStoredTenantSlug(this.tenantSlug);
     },
 
     async checkBootstrap() {

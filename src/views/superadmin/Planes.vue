@@ -277,6 +277,8 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SuperadminPlanesView' });
+
 import { computed, onMounted, reactive, ref } from 'vue';
 import { apiRequest } from '@/api/service';
 import BaseButton from '@/components/BaseButton.vue';

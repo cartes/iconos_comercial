@@ -143,6 +143,8 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SuperadminAgenciasView' });
+
 import { ref, reactive, onMounted } from 'vue';
 import { apiRequest } from '@/api/service';
 import BaseModal from '@/components/BaseModal.vue';
