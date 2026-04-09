@@ -1,18 +1,26 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import LoginView from "../views/LoginView.vue";
+import HomeView from "../views/HomeView.vue";
+import PricingView from "../views/PricingView.vue";
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      redirect: "/login",
+      name: "home",
+      component: HomeView,
     },
     {
       path: "/login",
       name: "login",
       component: LoginView,
+    },
+    {
+      path: "/planes",
+      name: "pricing",
+      component: PricingView,
     },
     // ── Redirect de compatibilidad ──────────────────────────────────
     {
@@ -126,8 +134,8 @@ router.beforeEach((to, _from) => {
     return "/login";
   }
 
-  // Redirección inteligente al loguearse o intentar ir al login siendo ya autenticado
-  const legacyPaths = ["/login", "/admin", "/portal"];
+  // Redirección inteligente al loguearse o intentar ir a rutas raíz/obsoletas
+  const legacyPaths = ["/", "/login", "/admin", "/portal"];
   if (auth.isAuthenticated && legacyPaths.includes(to.path)) {
     return auth.homePath;
   }
