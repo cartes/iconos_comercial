@@ -69,6 +69,11 @@ const router = createRouter({
           name: "super-seguridad",
           component: () => import("../views/superadmin/CambioPassword.vue"),
         },
+        {
+          path: "api-keys",
+          name: "super-api-keys",
+          component: () => import("../views/superadmin/ApiKeys.vue"),
+        },
       ],
     },
     // ── Rutas de Agencia (Multi-tenant) ────────────────────────────
