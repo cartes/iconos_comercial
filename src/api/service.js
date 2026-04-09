@@ -15,8 +15,26 @@ const api = axios.create({
 // Interceptor de peticiones para agregar el token dinámico y el Tenant (slug) en la URL
 api.interceptors.request.use(
   (config) => {
+    // 2. Definición de rutas globales (No requieren prefijo {tenant})
+    // Normalizamos la URL quitando slash principal
+    const normalizedUrl = config.url.replace(/^\//, "");
+    const isGlobalRoute =
+      normalizedUrl.startsWith("login") ||
+      normalizedUrl.startsWith("logout") ||
+      normalizedUrl.startsWith("estado") ||
+      normalizedUrl.startsWith("super-admin") ||
+      normalizedUrl.startsWith("me") ||
+      normalizedUrl.startsWith("primer-admin") ||
+      normalizedUrl.startsWith("invitar"); // Rutas públicas de invitaciones (sin prefijo tenant)
+
+    const isPublicRoute = 
+      normalizedUrl.startsWith("login") || 
+      normalizedUrl.startsWith("estado") || 
+      normalizedUrl.startsWith("primer-admin");
+
     const token = localStorage.getItem("auth_token");
-    if (token) {
+    // No enviar token en peticiones que sirven para iniciar sesión o comprobar estado público
+    if (token && !isPublicRoute) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
@@ -25,16 +43,7 @@ api.interceptors.request.use(
     const sessionUser = JSON.parse(localStorage.getItem("user") || "null");
     const tenantSlug = routerTenant || sessionUser?.tenant_slug;
 
-    // 2. Definición de rutas globales (No requieren prefijo {tenant})
-    // Normalizamos la URL quitando slash principal
-    const normalizedUrl = config.url.replace(/^\//, "");
-    const isGlobalRoute =
-      normalizedUrl.startsWith("login") ||
-      normalizedUrl.startsWith("estado") ||
-      normalizedUrl.startsWith("super-admin") ||
-      normalizedUrl.startsWith("me") ||
-      normalizedUrl.startsWith("primer-admin") ||
-      normalizedUrl.startsWith("invitar"); // Rutas públicas de invitaciones (sin prefijo tenant)
+    // Definición movida arriba para ser usada antes
 
     // 3. Inyección del prefijo /{tenant}/
     if (tenantSlug && !isGlobalRoute) {
@@ -58,8 +67,8 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const requestUrl = error.config?.url || "";
 
-    // Ignorar 401 del propio endpoint de login (credenciales incorrectas)
-    if (status === 401 && !requestUrl.includes("login")) {
+    // Ignorar 401 del propio endpoint de login y logout (para evitar bucles infinitos)
+    if (status === 401 && !requestUrl.includes("login") && !requestUrl.includes("logout")) {
       const authStore = useAuthStore();
       authStore.logout();
       window.location.hash = "#/login";

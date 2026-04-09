@@ -21,7 +21,7 @@
         <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-500">
           <a href="#features" class="hover:text-slate-900 transition-colors">Características</a>
           <a href="#stats" class="hover:text-slate-900 transition-colors">Resultados</a>
-          <a href="#pricing" class="hover:text-slate-900 transition-colors">Precios</a>
+          <RouterLink to="/planes" class="hover:text-slate-900 transition-colors">Precios</RouterLink>
         </nav>
 
         <div class="flex items-center gap-2">
@@ -312,10 +312,11 @@
                 class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 transition-colors shadow-xl shadow-black/20">
                 Comenzar gratis — sin tarjeta
               </RouterLink>
-              <button
+              <RouterLink
+                to="/planes"
                 class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition-colors">
                 Ver planes y precios
-              </button>
+              </RouterLink>
             </div>
           </div>
         </div>
