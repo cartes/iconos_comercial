@@ -22,6 +22,12 @@ const router = createRouter({
       name: "pricing",
       component: PricingView,
     },
+    {
+      path: "/registrar",
+      name: "register-agencia",
+      component: () => import("../views/RegisterAgencia.vue"),
+      meta: { public: true },
+    },
     // ── Redirect de compatibilidad ──────────────────────────────────
     {
       path: "/admin/empresas",

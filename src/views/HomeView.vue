@@ -29,7 +29,7 @@
             class="hidden sm:inline-flex text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors px-3 py-2">
             Iniciar sesión
           </RouterLink>
-          <RouterLink to="/login"
+          <RouterLink to="/registrar"
             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm hover:shadow-md">
             Comenzar gratis
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
@@ -85,7 +85,7 @@
 
             <!-- CTAs -->
             <div class="flex flex-wrap gap-3 mb-11">
-              <RouterLink to="/login" class="cta-primary group">
+              <RouterLink to="/registrar" class="cta-primary group">
                 Comenzar gratis
                 <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor"
                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -308,7 +308,7 @@
               Únete a +200 equipos que ya ahorraron horas de trabajo con Aiconic.
             </p>
             <div class="flex flex-wrap justify-center gap-4">
-              <RouterLink to="/login"
+              <RouterLink to="/registrar"
                 class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 transition-colors shadow-xl shadow-black/20">
                 Comenzar gratis — sin tarjeta
               </RouterLink>
