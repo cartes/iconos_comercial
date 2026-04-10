@@ -23,12 +23,12 @@ export const useAuthStore = defineStore("auth", {
   }),
 
   getters: {
-    sessionTenantSlug: (state) => state.tenantSlug || state.user?.tenant_slug || null,
+    sessionTenantSlug: (state) => state.tenantSlug || state.user?.tenant_slug || state.user?.tenantId || null,
     homePath: (state) => {
       if (!state.user) return "/login";
       if (state.user?.rol === "super-admin") return "/super-admin/dashboard";
 
-      const slug = state.tenantSlug || state.user?.tenant_slug;
+      const slug = state.tenantSlug || state.user?.tenant_slug || state.user?.tenantId;
       if (!slug) return "/login";
 
       if (state.user?.rol === "admin") {
@@ -58,7 +58,7 @@ export const useAuthStore = defineStore("auth", {
           };
 
           this.user = userData;
-          this.tenantSlug = userData.tenant_slug || null;
+          this.tenantSlug = userData.tenant_slug || userData.tenantId || null;
           this.isAuthenticated = true;
           persistSession({ user: userData, token: res.token, tenantSlug: this.tenantSlug });
 

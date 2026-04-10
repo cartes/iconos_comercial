@@ -50,7 +50,7 @@ export function getStoredTenantSlug() {
   if (explicitSlug) return explicitSlug;
 
   const user = getStoredUser();
-  return normalizeTenantSlug(user?.tenant_slug);
+  return normalizeTenantSlug(user?.tenant_slug) || (user?.tenantId ? normalizeTenantSlug(String(user.tenantId)) : null);
 }
 
 export function setStoredTenantSlug(tenantSlug) {
